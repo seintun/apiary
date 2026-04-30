@@ -34,7 +34,7 @@ For a role such as `cheapWorker`, adapters should resolve in this order:
 2. Adapter/runtime-specific worker defaults, if present.
 3. Host/session default by omitting the model.
 
-If resolution returns `auto`, `default`, `host-default`, `null`, or no value, omit the model.
+If resolution returns `auto`, `default`, `runtime-default (unresolved)`, `null`, or no value, omit the model.
 
 ## Example local policy
 

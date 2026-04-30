@@ -37,7 +37,7 @@ node scripts/apiary-run.mjs worker-complete \
   --summary "Found that v2 is a monorepo platform rewrite."
 ```
 
-If a model role resolves to host/default, omit `--model` or pass no model to `sessions_spawn`. The monitor will display `host-default`.
+If a model role resolves to host/default, omit `--model` or pass no model to `sessions_spawn`. Record `--resolved-model` from OpenClaw session status when available; the monitor displays the actual resolved model id. If the runtime does not expose it yet, it displays `runtime-default (unresolved)` rather than pretending to know.
 
 ## View monitors
 

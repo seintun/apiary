@@ -68,6 +68,7 @@
         "role": { "type": "string", "minLength": 1 },
         "modelRole": { "type": "string" },
         "model": { "type": ["string", "null"] },
+        "resolvedModel": { "type": ["string", "null"], "description": "Actual model id observed from the host runtime, when available. Falls back to requested model when explicitly set." },
         "status": { "$ref": "#/$defs/status" },
         "sessionKey": { "type": ["string", "null"] },
         "startedAt": { "type": "string" },

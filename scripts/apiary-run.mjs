@@ -122,7 +122,7 @@ export function handle(argv) {
   if (cmd === 'scout-start') {
     const id = args.id || args.label || `worker-${run.scouts.length+1}`
     const t = now()
-    upsertScout(run, { id, label: args.label || id, role: args.role || 'worker', modelRole: args['model-role'] || 'default', model: args.model || null, status: requireStatus(args.status || 'running'), sessionKey: args['session-key'] || null, startedAt: t, lastSeenAt: t, completedAt: null, progress: Number(args.progress ?? 0), summary: args.summary || '', awaiting: args.awaiting || null, artifactPaths: [] })
+    upsertScout(run, { id, label: args.label || id, role: args.role || 'worker', modelRole: args['model-role'] || 'default', model: args.model || null, resolvedModel: args['resolved-model'] || args.model || null, status: requireStatus(args.status || 'running'), sessionKey: args['session-key'] || null, startedAt: t, lastSeenAt: t, completedAt: null, progress: Number(args.progress ?? 0), summary: args.summary || '', awaiting: args.awaiting || null, artifactPaths: [] })
     run.events.push(event('state', `Worker started: ${args.label || id}`, id))
     return { run: saveRun(run) }
   }
@@ -132,6 +132,8 @@ export function handle(argv) {
     const status = cmd === 'scout-complete' ? 'done' : cmd === 'scout-fail' ? 'failed' : requireStatus(args.status || scout.status)
     scout.status = status; scout.lastSeenAt = now(); scout.progress = Number(args.progress ?? (status === 'done' ? 100 : scout.progress ?? 0))
     if (args.summary) scout.summary = args.summary
+    if (args.model !== undefined) scout.model = args.model || null
+    if (args['resolved-model'] !== undefined) scout.resolvedModel = args['resolved-model'] || scout.model || null
     if (args.awaiting !== undefined) scout.awaiting = args.awaiting || null
     if (status === 'done' || status === 'failed' || status === 'canceled') scout.completedAt = now()
     run.events.push(event(status === 'failed' ? 'error' : 'state', args.message || `Worker ${status}: ${scout.label}`, id, status === 'failed' ? 'danger' : status === 'done' ? 'success' : 'info'))

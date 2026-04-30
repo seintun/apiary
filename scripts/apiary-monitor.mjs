@@ -30,7 +30,7 @@ export function formatRun(run) {
   rows.push(`${'ROLE'.padEnd(14)} ${'WORKER'.padEnd(24)} ${'MODEL ROLE'.padEnd(14)} ${'MODEL/ROUTE'.padEnd(20)} ${'STATUS'.padEnd(15)} PROG`)
   rows.push(line())
   for (const worker of run.workers || run.scouts || []) {
-    const model = worker.model || 'host-default'
+    const model = worker.resolvedModel || worker.model || 'runtime-default (unresolved)'
     rows.push(`${truncate(worker.role,13).padEnd(14)} ${truncate(worker.label,23).padEnd(24)} ${truncate(worker.modelRole||'default',13).padEnd(14)} ${truncate(model,19).padEnd(20)} ${(ICONS[worker.status]||'·')} ${truncate(LABELS[worker.status]||worker.status,12).padEnd(13)} ${pct(worker.progress)}`)
     if (worker.awaiting) rows.push(`  ↳ awaiting: ${worker.awaiting}`)
   }

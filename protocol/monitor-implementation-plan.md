@@ -241,7 +241,7 @@ Status: running · 2 done · 1 running · 0 blocked · updated 12s ago
 ROLE        LABEL                  MODEL ROLE    MODEL/ROUTE       STATUS
 uxWorker     Dashboard UX worker     cheapWorker    gpt-5.4-mini      done
 techWorker   Dashboard tech worker   cheapWorker    gpt-5.4-mini      running
-reviewer    Risk worker             reviewer      host-default      done
+reviewer    Risk worker             reviewer      runtime-default (unresolved)      done
 
 Awaiting: none
 ```
