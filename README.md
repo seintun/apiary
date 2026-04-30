@@ -41,6 +41,17 @@ Apiary requires only:
 
 The coordinator can be a human, an AI assistant, a coding agent, or a team lead. Scouts can be subagents, separate LLM chats, humans, CI jobs, reviewers, or issue commenters.
 
+
+## Documentation
+
+- [Quickstart](QUICKSTART.md)
+- [Architecture](ARCHITECTURE.md)
+- [Technical Notes](TECHNICAL.md)
+- [Protocol](protocol/apiary-protocol.md)
+- [Decision Rules](protocol/decision-rules.md)
+- [Safety Model](protocol/safety-model.md)
+- [Contributing](CONTRIBUTING.md)
+
 ## Quick start
 
 1. Read `protocol/apiary-protocol.md`.
