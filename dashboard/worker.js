@@ -10,6 +10,10 @@ function age(iso){ if(!iso) return '—'; const s=Math.max(0,Math.round((Date.no
 function duration(start,end){ if(!start) return '—'; const ms=Math.max(0,new Date(end||Date.now())-new Date(start)); const s=Math.round(ms/1000); if(s<60)return `${s}s`; const m=Math.floor(s/60), r=s%60; if(m<60)return r?`${m}m ${r}s`:`${m}m`; const h=Math.floor(m/60); return `${h}h ${m%60}m` }
 function eventStamp(iso){ return iso ? new Date(iso).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '—' }
 function statusLabel(status){ return ({queued:'Queued',running:'Gathering',waiting_tool:'Waiting on tool',waiting_user:'Waiting for you',blocked:'Blocked',retrying:'Trying again',done:'Finished',failed:'Failed',canceled:'Canceled',stale:'Quiet too long'})[status] || status || 'Queued' }
+function statusTone(status){ if(status==='done') return 'good'; if(['failed','blocked'].includes(status)) return 'bad'; if(['waiting_tool','waiting_user','retrying'].includes(status)) return 'warning'; if(['running','queued'].includes(status)) return 'running'; if(status==='stale') return 'stale'; return 'info' }
+function toneIcon(tone, status){ return ({good:'✓',bad:'✕',warning:'!',running:'↻',stale:'…',info:'i'})[tone] || ({done:'✓',failed:'✕',blocked:'!',running:'↻'})[status] || 'i' }
+function setToneClass(el, prefix, tone){ if(!el) return; for(const name of ['good','bad','warning','running','stale','info']) el.classList.remove(`${prefix}-${name}`); el.classList.add(`${prefix}-${tone}`) }
+function eventTone(evt){ const kind=evt?.kind||evt?.type||''; const sev=evt?.severity||'info'; if(/fail|error|blocked/.test(kind)||sev==='error') return 'bad'; if(/warn|retry/.test(kind)||sev==='warning') return 'warning'; if(/completed|success|done/.test(kind)||sev==='success') return 'good'; if(/started|dispatch|running/.test(kind)) return 'running'; return 'info' }
 function workerIcon(worker){ const key=`${worker?.role||''} ${worker?.label||''} ${worker?.id||''}`; const patterns=[[/queen|main|coordinator|dexter/i,'👑'],[/ux|design/i,'🎨🐝'],[/risk|review|security|devil|advers/i,'🛡️🐝'],[/doc|write/i,'📚🐝'],[/tech|code|impl|engineer/i,'🛠️🐝'],[/research|evidence/i,'🔎🐝'],[/adapt|map/i,'🧭🐝'],[/safety/i,'🦺🐝'],[/reliab|test|verify/i,'✅🐝']]; return patterns.find(([re])=>re.test(key))?.[1] || '🐝' }
 
 function safeHref(href){
@@ -50,7 +54,7 @@ function renderTextList(containerId, items, empty){ const el=$(containerId); cle
 function renderLog(containerId, events){
   const ol=$(containerId); clear(ol)
   if(!events?.length){ const li=document.createElement('li'); li.textContent='No log entries'; ol.appendChild(li); return }
-  for(const evt of events.slice(-50).reverse()){ const li=document.createElement('li'); const strong=document.createElement('strong'); strong.textContent=evt.severity || 'info'; li.append(strong, document.createTextNode(` · ${evt.ts ? new Date(evt.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '—'} · ${evt.summary || evt.message || 'Event'}`)); ol.appendChild(li) }
+  for(const evt of events.slice(-50).reverse()){ const li=document.createElement('li'); const strong=document.createElement('strong'); const tone=eventTone(evt); li.className=`tone-${tone}`; strong.textContent=`${toneIcon(tone)} ${evt.severity || 'info'}`; li.append(strong, document.createTextNode(` · ${evt.ts ? new Date(evt.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '—'} · ${evt.summary || evt.message || 'Event'}`)); ol.appendChild(li) }
 }
 
 function reportField(worker, key, fallback){ return worker.reportData?.[key] ?? fallback }
@@ -103,9 +107,11 @@ function renderWorker(worker, run){
   if(view.sourceLabel) statusBits.push(view.sourceLabel)
   if(worker.reportUpdatedAt) statusBits.push(`updated ${age(worker.reportUpdatedAt)}`)
   setText($('workerMeta'), statusBits.join(' · '))
-  setText($('workerStatus'), statusLabel(worker.status))
+  const tone=statusTone(worker.status); setText($('workerStatus'), `${toneIcon(tone, worker.status)} ${statusLabel(worker.status)}`); setToneClass($('workerStatus'), 'tone', tone); setToneClass($('worker-detail'), 'tone', tone)
   setText($('workerSource'), view.sourceLabel)
   setText($('workerFreshness'), view.freshnessLabel)
+  setToneClass($('workerSource'), 'tone', view.source === 'full-report' ? 'good' : view.source === 'hybrid' ? 'warning' : 'info')
+  setToneClass($('workerFreshness'), 'tone', view.freshness === 'fresh' ? 'good' : view.freshness === 'missing-report' ? 'bad' : view.freshness === 'stale-report' ? 'warning' : 'info')
   setText($('workerSummary'), view.summary)
   setText($('workerDoing'), view.doing)
   setText($('workerStarted'), worker.startedAt ? new Date(worker.startedAt).toLocaleString() : '—')
