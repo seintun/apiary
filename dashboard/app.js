@@ -1,7 +1,7 @@
 const $ = (id) => document.getElementById(id)
 const labels = { queued:'Queued', running:'Gathering', waiting_tool:'Waiting on tool', waiting_user:'Waiting for you', waiting_model:'Waiting for model', needs_review:'Needs review', needs_tests:'Needs tests', blocked:'Blocked', retrying:'Trying again', done:'Finished', failed:'Failed', canceled:'Canceled', stale:'Quiet too long' }
 const icons = { queued:'○', running:'🐝', waiting_tool:'🛠️', waiting_user:'👋', waiting_model:'⏳', needs_review:'🔎', needs_tests:'🧪', blocked:'⚠️', retrying:'↻', done:'✓', failed:'✕', canceled:'−', stale:'…' }
-const toneIcons = { good:'✓', bad:'!', warning:'!', waiting:'⏳', running:'↻', decision:'💡', dispatch:'↗', log:'i', info:'i', done:'✓', blocked:'!', failed:'✕', stale:'…' }
+const toneIcons = { good:'✓', bad:'!', warning:'!', waiting:'⏳', running:'↻', decision:'💡', dispatch:'↗', log:'i', info:'ⓘ', done:'✓', blocked:'!', failed:'✕', stale:'…' }
 const eventKindLabels = {
   'task.created':'Task born', 'command.sent':'Command issued', 'decision.made':'Decision made', 'worker.dispatched':'Worker dispatched',
   'run.started':'Worker started', 'run.log':'Worker log', 'run.completed':'Worker completed', 'run.failed':'Worker failed', 'artifact.created':'Artifact saved',
