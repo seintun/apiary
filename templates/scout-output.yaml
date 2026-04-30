@@ -1,0 +1,13 @@
+scout_id: "<role>-001"
+objective: "<one-line restatement>"
+direction: "<where I looked: files, URLs, repos, sources>"
+distance: "<effort spent: tools/time/tokens if known>"
+findings:
+  - claim: "<atomic fact>"
+    evidence: "<file:line, URL, command output, or inferred>"
+    confidence: "high|medium|low"
+quality: "high|medium|low"
+recommendation: "pursue|abandon|needs-deeper-scout"
+recruit_signal: "<if pursue, what next scout should investigate>"
+stop_signal: "<if abandon, why: depleted, dangerous, wrong patch>"
+notes: "<optional, max 50 words>"
