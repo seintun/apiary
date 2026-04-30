@@ -23,6 +23,21 @@ function safeHref(href){
 }
 function createSafeLink(href, label){ const a=document.createElement('a'); const safe=safeHref(href); a.textContent=String(label || href || 'artifact'); if(safe) a.href=safe; else { a.href='#'; a.textContent='[invalid link]' } return a }
 function normalizeReportPath(reportPath){ if(!reportPath) return null; const p=String(reportPath); if(p.startsWith('../') || p.startsWith('./')) return p; return `../${p.replace(/^\/+/, '')}` }
+function textList(values){ return Array.isArray(values) ? values.filter((v)=>v != null && v !== '') : (values ? [values] : []) }
+function renderItems(containerId, items, {links=true, empty='None recorded'} = {}){
+  const el=$(containerId); clear(el)
+  const values = textList(items)
+  if(!values.length){ el.textContent=empty; el.classList.add('no-data'); return }
+  el.classList.remove('no-data')
+  for(const item of values){
+    const li=document.createElement('li')
+    const value = typeof item === 'string' ? item : (item?.label || item?.name || item?.path || item?.url || JSON.stringify(item))
+    if(links && typeof item === 'object' && item){ li.appendChild(createSafeLink(item.url || item.path, value)) }
+    else if(links && typeof item === 'string'){ const safe = safeHref(item); li.appendChild(safe ? createSafeLink(item, value) : document.createTextNode(value)) }
+    else li.textContent = value
+    el.appendChild(li)
+  }
+}
 async function loadRun(runId){
   const registry = await fetchJSON('../runs/registry.json').catch(()=>null)
   const entry = registry?.runs?.find((r)=>r.runId===runId)
@@ -30,25 +45,7 @@ async function loadRun(runId){
   return fetchJSON(path)
 }
 
-function renderList(containerId, items){
-  const ul=$(containerId); clear(ul)
-  const values = Array.isArray(items) ? items : (items ? [items] : [])
-  if(!values.length){ const li=document.createElement('li'); li.className='no-data'; li.textContent='None recorded'; ul.appendChild(li); return }
-  for(const item of values){
-    const li=document.createElement('li')
-    if(typeof item === 'string') li.appendChild(createSafeLink(item, item))
-    else if(item && typeof item === 'object') li.appendChild(createSafeLink(item.url || item.path, item.label || item.name || item.path || item.url || JSON.stringify(item)))
-    else li.textContent=String(item)
-    ul.appendChild(li)
-  }
-}
-function renderTextList(containerId, items, empty){
-  const el=$(containerId); clear(el)
-  const values = Array.isArray(items) ? items : (items ? [items] : [])
-  if(!values.length){ el.textContent=empty; el.classList.add('no-data'); return }
-  el.classList.remove('no-data')
-  for(const item of values){ const p=document.createElement('p'); p.textContent=String(item); el.appendChild(p) }
-}
+function renderTextList(containerId, items, empty){ const el=$(containerId); clear(el); const values=textList(items); if(!values.length){ el.textContent=empty; el.classList.add('no-data'); return } el.classList.remove('no-data'); for(const item of values){ const p=document.createElement('p'); p.textContent=String(item); el.appendChild(p) } }
 function renderLog(containerId, events){
   const ol=$(containerId); clear(ol)
   if(!events?.length){ const li=document.createElement('li'); li.textContent='No log entries'; ol.appendChild(li); return }
@@ -56,27 +53,57 @@ function renderLog(containerId, events){
 }
 
 function reportField(worker, key, fallback){ return worker.reportData?.[key] ?? fallback }
+function deriveWorkerDetailView(worker, run, reportData, reportLoadError){
+  const report = reportData && !reportData.risks?.some?.((r)=>String(r).startsWith('Full report unavailable:')) ? reportData : null
+  const reportStatus = worker.reportStatus || report?.reportStatus || report?.status || (reportData?.risks?.some?.((r)=>String(r).includes('Full report unavailable')) ? 'missing' : null)
+  const hasReport = !!report
+  const source = hasReport ? (reportData?.doing || reportData?.accomplished || reportData?.findings ? 'hybrid' : 'full-report') : 'ledger-derived'
+  const freshness = reportLoadError ? 'missing-report' : (worker.reportUpdatedAt && worker.lastSeenAt && new Date(worker.reportUpdatedAt) < new Date(worker.lastSeenAt) ? 'stale-report' : (hasReport ? 'fresh' : 'derived-only'))
+  const summary = report?.summary || worker.summary || (worker.status === 'done' ? 'Work completed.' : 'Worker details derived from ledger.')
+  return {
+    title: worker.reportHeadline || report?.headline || worker.label || worker.id || 'Worker',
+    summary,
+    doing: report?.doing || worker.summary || (worker.status === 'done' ? 'Work completed' : 'Idle'),
+    accomplished: report?.accomplished || (worker.status === 'done' ? [worker.summary || 'Work completed successfully.'] : []),
+    findings: report?.findings || (hasReport ? [] : [worker.summary ? `Ledger summary: ${worker.summary}` : 'No report artifact recorded.']),
+    artifacts: report?.artifacts || worker.artifactPaths || [],
+    filesTouched: report?.filesTouched || [],
+    nextSteps: report?.nextSteps || (worker.awaiting ? [worker.awaiting] : []),
+    risks: report?.risks || (reportLoadError ? [`Missing report artifact: ${reportLoadError.message}`] : (!hasReport ? ['No structured report artifact was recorded.'] : [])),
+    source,
+    reportStatus,
+    freshness,
+    reportLoadError,
+    sourceLabel: source === 'ledger-derived' ? 'Derived from ledger' : (source === 'hybrid' ? 'Hybrid: report + ledger' : 'Full report'),
+    freshnessLabel: freshness === 'missing-report' ? 'Missing report' : freshness === 'stale-report' ? 'Stale report' : freshness === 'derived-only' ? 'Derived only' : 'Fresh',
+  }
+}
 function renderWorker(worker, run){
+  const view = deriveWorkerDetailView(worker, run, worker.reportData, worker.reportLoadError)
   setText($('workerIcon'), workerIcon(worker))
-  setText($('workerTitle'), worker.reportHeadline || worker.reportData?.headline || worker.label || worker.id || 'Worker')
+  setText($('workerTitle'), view.title)
   const statusBits=[worker.role || 'worker', worker.resolvedModel || worker.model || 'runtime-default']
-  if(worker.reportStatus || worker.report?.status) statusBits.push(`report ${worker.reportStatus || worker.report.status}`)
+  if(view.sourceLabel) statusBits.push(view.sourceLabel)
   if(worker.reportUpdatedAt) statusBits.push(`updated ${age(worker.reportUpdatedAt)}`)
   setText($('workerMeta'), statusBits.join(' · '))
   setText($('workerStatus'), statusLabel(worker.status))
-  setText($('workerDoing'), reportField(worker, 'doing', worker.summary || (worker.status === 'done' ? 'Work completed' : 'Idle')))
+  setText($('workerSource'), view.sourceLabel)
+  setText($('workerFreshness'), view.freshnessLabel)
+  setText($('workerSummary'), view.summary)
+  setText($('workerDoing'), view.doing)
   setText($('workerStarted'), worker.startedAt ? new Date(worker.startedAt).toLocaleString() : '—')
   setText($('workerSeen'), age(worker.lastSeenAt))
   setText($('workerElapsed'), duration(worker.startedAt, worker.completedAt))
   setText($('workerAwaiting'), worker.awaiting || '—')
-  renderTextList('workerAccomplished', reportField(worker, 'accomplished', worker.completedAt ? [worker.summary || 'Work completed successfully.'] : []), 'Not yet completed')
-  renderTextList('workerFindings', reportField(worker, 'findings', []), 'No findings recorded')
-  renderList('workerArtifacts', reportField(worker, 'artifacts', worker.artifactPaths || []))
-  renderList('workerFiles', reportField(worker, 'filesTouched', []))
-  renderList('workerNextSteps', reportField(worker, 'nextSteps', []))
-  renderList('workerRisks', reportField(worker, 'risks', []))
+  renderTextList('workerAccomplished', view.accomplished, 'Not yet completed')
+  renderTextList('workerFindings', view.findings, 'No findings recorded')
+  renderItems('workerArtifacts', view.artifacts)
+  renderItems('workerFiles', view.filesTouched, {links:false, empty:'No files recorded'})
+  renderItems('workerNextSteps', view.nextSteps, {links:false, empty:'None recorded'})
+  renderItems('workerRisks', view.risks, {links:false, empty:'None recorded'})
   renderLog('workerLog', (run.events || []).filter((e)=>e.scoutId === worker.id))
   setText($('workerIdDisplay'), worker.id)
+  setText($('workerSourceCopy'), view.sourceLabel)
   $('worker-detail').classList.remove('hidden')
 }
 
@@ -88,7 +115,7 @@ async function loadAndRender(){
     const worker=(run.scouts || []).find((w)=>w.id===workerId)
     if(!worker){ $('loading').classList.add('hidden'); $('not-found').classList.remove('hidden'); return }
     const reportPath = worker.reportPath || worker.report?.path
-    if(reportPath){ worker.reportData = await fetchJSON(normalizeReportPath(reportPath)).catch((error)=>({ risks:[`Full report unavailable: ${error.message}`] })) }
+    if(reportPath){ worker.reportData = await fetchJSON(normalizeReportPath(reportPath)).catch((error)=>{ worker.reportLoadError = error; return null }) }
     $('loading').classList.add('hidden')
     renderWorker(worker, run)
   }catch(error){ clear($('loading')); const p=document.createElement('p'); p.textContent=`Error loading worker: ${error.message}`; $('loading').appendChild(p) }

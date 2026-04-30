@@ -30,6 +30,12 @@ test('worker page uses textContent/createElement instead of unsafe HTML renderin
   assert.ok(!workerJs.includes('innerHTML ='), 'Worker JS should avoid direct innerHTML assignment')
 })
 
+test('worker page derives a detail view model', () => {
+  assert.ok(workerJs.includes('function deriveWorkerDetailView(worker, run, reportData, reportLoadError)'), 'deriveWorkerDetailView should exist')
+  assert.ok(workerJs.includes('workerSourceCopy'), 'Snapshot should display the source label')
+  assert.ok(workerJs.includes('workerFreshness'), 'Snapshot should display freshness')
+})
+
 test('safe links are protocol checked', () => {
   assert.ok(workerJs.includes('function safeHref(href)'), 'safeHref function must be defined')
   assert.ok(workerJs.includes("url.protocol === 'http:'") && workerJs.includes("url.protocol === 'https:'"), 'Only http/https URLs should be allowed')
@@ -37,14 +43,15 @@ test('safe links are protocol checked', () => {
 
 test('worker report fetch handles missing file gracefully', () => {
   assert.ok(workerJs.includes('const reportPath = worker.reportPath || worker.report?.path'), 'Conditional fetch should check canonical and legacy reportPath')
-  assert.ok(workerJs.includes('catch((error)=>'), 'Missing report fetch should be caught')
-  assert.ok(workerJs.includes('Full report unavailable'), 'Missing report should degrade to a visible risk')
+  assert.ok(workerJs.includes('worker.reportLoadError = error'), 'Missing report fetch should be tracked')
+  assert.ok(workerJs.includes('Missing report artifact'), 'Missing report should degrade to a visible risk')
 })
 
 test('report data is merged without overwriting core worker fields', () => {
   assert.ok(workerJs.includes('worker.reportData = await fetchJSON'), 'Report data should be assigned to worker.reportData property')
-  assert.ok(workerJs.includes("reportField(worker, 'findings'"), 'Findings section should check reportData fallback')
-  assert.ok(workerJs.includes("reportField(worker, 'artifacts'"), 'Artifacts section should check reportData fallback')
+  assert.ok(workerJs.includes('deriveWorkerDetailView(worker, run, worker.reportData, worker.reportLoadError)'), 'Detail view should be derived from merged report data')
+  assert.ok(workerJs.includes("report?.findings || (hasReport ? []"), 'Findings should fall back from report data without clobbering worker data')
+  assert.ok(workerJs.includes("report?.artifacts || worker.artifactPaths || []"), 'Artifacts should fall back from report data without clobbering worker data')
 })
 
 test('all report sections render with fallback to empty state', () => {
@@ -52,8 +59,16 @@ test('all report sections render with fallback to empty state', () => {
 })
 
 test('report artifacts render as safe links', () => {
-  assert.ok(workerJs.includes('renderList'), 'renderList function should be used for artifacts')
+  assert.ok(workerJs.includes('renderItems('), 'renderItems function should be used for artifacts')
   assert.ok(workerJs.includes("document.createElement('a')"), 'Artifact links should be created with createElement')
+})
+
+test('files touched render as text not links', () => {
+  assert.ok(workerJs.includes("renderItems('workerFiles', view.filesTouched, {links:false"), 'Files touched should be rendered as text')
+})
+
+test('done summary fallback uses ledger data', () => {
+  assert.ok(workerJs.includes("worker.status === 'done' ? [worker.summary || 'Work completed successfully.'] : []"), 'Completed work should fall back to the worker summary when done')
 })
 
 test('worker page back link returns to dashboard', () => {

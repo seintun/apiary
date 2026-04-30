@@ -35,8 +35,18 @@
           <h2 id="workerTitle">Worker name</h2>
           <p class="worker-meta" id="workerMeta">role · model</p>
         </div>
-        <span class="badge" id="workerStatus">status</span>
+        <div class="badge-stack">
+          <span class="badge" id="workerStatus">status</span>
+          <span class="badge badge-soft" id="workerSource">source</span>
+          <span class="badge badge-soft" id="workerFreshness">freshness</span>
+        </div>
       </header>
+
+      <section class="worker-section snapshot-section">
+        <h3>Snapshot</h3>
+        <p id="workerSummary">Worker summary</p>
+        <p class="snapshot-copy"><span>Source:</span> <strong id="workerSourceCopy">source</strong></p>
+      </section>
 
       <section class="worker-section">
         <h3>Doing</h3>

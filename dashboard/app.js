@@ -14,7 +14,8 @@ const workerTypeIcons = [
 function workerIcon(worker){ const key=`${worker?.role||''} ${worker?.label||''} ${worker?.id||''}`; return workerTypeIcons.find(([re])=>re.test(key))?.[1] || '🐝' }
 const activeStatuses = new Set(['queued','running','waiting_tool','retrying','waiting_model','needs_review','needs_tests'])
 const STALE_AFTER_MS = 5 * 60 * 1000
-let currentRun = null, selectedId = null, privacy = false, healthFilter = 'all', historyFilter = 'all', historyScroll = { all:0, active:0, done:0 }, chipScroll = 0, runRegistry = [], selectedRunId = null, eventFilter = 'all', lastRunUpdatedAt = 0
+let currentRun = null, selectedId = null, privacy = false, healthFilter = 'all', historyFilter = 'all', historyScroll = { all:0, active:0, done:0 }, chipScroll = 0, runRegistry = [], selectedRunId = null, eventFilter = 'all', lastRunUpdatedAt = 0, lastUserViewportAction = 0
+const AUTO_REFRESH_PAUSE_MS = 15000
 function age(iso){ if(!iso) return '—'; const s=Math.max(0,Math.round((Date.now()-new Date(iso))/1000)); if(s<60)return `${s}s ago`; const m=Math.round(s/60); return m<60?`${m}m ago`:`${Math.round(m/60)}h ago` }
 
 function dateKey(iso){ if(!iso) return 'unknown'; return new Date(iso).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}) }
@@ -37,6 +38,8 @@ function clear(el){ if(el) while(el.firstChild) el.removeChild(el.firstChild) }
 function flashButton(button, message){ button.classList.remove('clicked'); void button.offsetWidth; button.classList.add('clicked'); button.dataset.feedback = message; clearTimeout(button.__feedbackTimer); button.__feedbackTimer=setTimeout(()=>{ button.classList.remove('clicked'); delete button.dataset.feedback }, 900) }
 function runPath(entry){ return entry?.path ? `../${entry.path}` : `../runs/${entry.runId}.json` }
 async function fetchRun(entry){ return fetch(runPath(entry),{cache:'no-store'}).then(r=>{ if(!r.ok) throw new Error(`run ${entry.runId}`); return r.json() }) }
+function noteViewportAction(){ lastUserViewportAction = Date.now() }
+function shouldPauseAutoRefresh(){ return selectedId || Date.now() - lastUserViewportAction < AUTO_REFRESH_PAUSE_MS }
 async function loadRun(runId=selectedRunId){
   try{
     const reg=await fetch('../runs/registry.json',{cache:'no-store'}).then(r=>{ if(!r.ok) throw new Error('registry'); return r.json() })
@@ -107,19 +110,19 @@ function appendInlineDetails(tbody, scout, status){
   const reportBullets = Array.isArray(scout.reportBullets) ? scout.reportBullets : (Array.isArray(legacyReport.bullets) ? legacyReport.bullets : [])
   const hasReportHeadline = reportHeadline.trim().length > 0
   const hasReportBullets = reportBullets.length > 0
-  if(hasReportHeadline || hasReportBullets || scout.reportPath || legacyReport.path){
+  {
     const reportSection=document.createElement('div'); reportSection.className='inline-report'
     const toggleBtn=document.createElement('button'); toggleBtn.type='button'; toggleBtn.className='report-toggle'; toggleBtn.textContent='Show preview'
     const content=document.createElement('div'); content.className='report-content'
     if(hasReportHeadline) content.appendChild(textEl('p', reportHeadline.trim(), 'report-headline'))
     if(hasReportBullets){ const ul=document.createElement('ul'); ul.className='report-bullets'; for(const bullet of reportBullets.slice(0,3)){ ul.appendChild(textEl('li', bullet)) } content.appendChild(ul) }
+    if(!hasReportHeadline && !hasReportBullets) content.appendChild(textEl('p', 'Open the full worker page for all recorded facts, timeline entries, artifacts, and next-step fields.', 'report-meta'))
     const meta=[]; if(scout.reportStatus || legacyReport.status) meta.push(`Report: ${scout.reportStatus || legacyReport.status}`); if(scout.reportUpdatedAt) meta.push(`updated ${age(scout.reportUpdatedAt)}`); if(meta.length) content.appendChild(textEl('p', meta.join(' · '), 'report-meta'))
     const fullUrl = `worker.html?run=${encodeURIComponent(currentRun?.runId || selectedRunId || '')}&worker=${encodeURIComponent(scout.id)}`
-    const linkBtn=document.createElement('a'); linkBtn.href=fullUrl; linkBtn.target='_blank'; linkBtn.rel='noopener noreferrer'; linkBtn.className='report-link'; linkBtn.textContent='View full report'
+    const linkBtn=document.createElement('a'); linkBtn.href=fullUrl; linkBtn.className='report-link'; linkBtn.textContent='View full report →'
     content.appendChild(linkBtn)
     reportSection.append(toggleBtn, content); box.appendChild(reportSection)
-    if(window.matchMedia && window.matchMedia('(max-width: 820px)').matches) content.classList.add('collapsed')
-    else toggleBtn.textContent='Hide preview'
+    toggleBtn.textContent='Hide preview'
     toggleBtn.onclick=()=>{ const isCollapsed = content.classList.toggle('collapsed'); toggleBtn.textContent = isCollapsed ? 'Show preview' : 'Hide preview' }
   }
 
@@ -181,4 +184,5 @@ document.addEventListener('click',(event)=>{ const trigger=event.target.closest(
 document.addEventListener('keydown',(event)=>{ if(event.key==='Escape') hideHelp() })
 for(const card of document.querySelectorAll('.health-card')) card.onclick=()=>{ if(card.disabled) return; healthFilter = healthFilter===card.dataset.filter ? 'all' : card.dataset.filter; selectedId=null; render() }
 for(const tab of document.querySelectorAll('.history-tab')) tab.onclick=()=>{ saveHistoryScroll(); const next=tab.dataset.historyFilter||'all'; historyFilter=next; if(historyScroll[next]==null) historyScroll[next]=0; render() }
-document.addEventListener('visibilitychange',()=>{ if(!document.hidden) loadRun() }); loadRun(); setInterval(()=>{ if(!document.hidden) loadRun() },3000)
+for(const eventName of ['scroll','wheel','touchstart','touchmove','keydown']) window.addEventListener(eventName, noteViewportAction, { passive:true })
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden && !shouldPauseAutoRefresh()) loadRun() }); loadRun(); setInterval(()=>{ if(!document.hidden && !shouldPauseAutoRefresh()) loadRun() },3000)
