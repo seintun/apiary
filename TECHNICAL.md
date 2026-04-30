@@ -7,7 +7,7 @@ Apiary is implemented as a protocol pack:
 ```text
 protocol/     normative workflow and rules
 templates/    reusable input/output artifacts
-prompts/      role prompts for coordinators and scouts
+prompts/      role prompts for coordinators and workers
 checklists/   verification and writeback aids
 examples/     concrete worked examples
 adapters/     platform-specific mappings
@@ -21,7 +21,7 @@ None.
 Apiary can be run with only:
 - markdown files,
 - a coordinator,
-- one or more scouts,
+- one or more workers,
 - a durable place to save decisions.
 
 ## Optional dependencies
@@ -36,9 +36,9 @@ Depending on adapter:
 
 ## Data model
 
-### Scout brief
+### Worker brief
 
-Input contract for a scout:
+Input contract for a worker:
 - role,
 - objective,
 - context,
@@ -47,9 +47,9 @@ Input contract for a scout:
 - stop conditions,
 - output format.
 
-See `templates/scout-brief.md`.
+See `templates/worker-brief.md`.
 
-### Scout output
+### Worker output
 
 Structured report with:
 - objective restatement,
@@ -61,13 +61,13 @@ Structured report with:
 - recommendation,
 - recruit/stop signals.
 
-See `templates/scout-output.yaml`.
+See `templates/worker-output.yaml`.
 
 ### Synthesis report
 
 Coordinator-owned decision record:
 - decision,
-- scout input summary,
+- worker input summary,
 - agreement/disagreement,
 - unresolved risks,
 - verification gate,
@@ -79,7 +79,7 @@ See `templates/synthesis-report.md`.
 
 Every adapter should define:
 - how to run the coordinator,
-- how to create scouts,
+- how to create workers,
 - where source retrieval happens,
 - where durable writeback lives,
 - what verification means,
@@ -105,7 +105,7 @@ Possible CLI helpers:
 
 ```bash
 apiary init
-apiary validate scout-output.yaml
+apiary validate worker-output.yaml
 apiary screen plan.md
 apiary new tool-adoption-analysis
 ```

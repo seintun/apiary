@@ -5,7 +5,7 @@
 Apiary is a lightweight multi-perspective decision workflow:
 
 ```text
-Classify -> Retrieve -> Scout -> Synthesize -> Verify -> Writeback
+Classify -> Retrieve -> Worker -> Synthesize -> Verify -> Writeback
 ```
 
 ## 1. Classify
@@ -26,7 +26,7 @@ Skip Apiary when:
 
 ## 2. Retrieve
 
-Gather relevant source material before asking scouts to speculate.
+Gather relevant source material before asking workers to speculate.
 
 Examples:
 - files/docs/wiki/search results,
@@ -37,17 +37,17 @@ Examples:
 
 Retrieval tools vary by environment. The invariant is: inspect sources before claiming confidence.
 
-## 3. Scout
+## 3. Worker
 
-Assign 1-3 scoped scouts.
+Assign 1-3 scoped workers.
 
-Common scout roles:
-- Research scout: facts, sources, prior art.
+Common worker roles:
+- Research worker: facts, sources, prior art.
 - Devil's advocate: risks, instability, privacy/security, overkill.
-- Adaptation scout: how to implement in the current environment.
-- Reviewer scout: review a proposed plan/diff/output.
+- Adaptation worker: how to implement in the current environment.
+- Reviewer worker: review a proposed plan/diff/output.
 
-Each scout gets:
+Each worker gets:
 - objective,
 - constraints,
 - allowed/forbidden actions,
@@ -56,7 +56,7 @@ Each scout gets:
 
 ## 4. Synthesize
 
-The coordinator compares scout outputs and produces one decision.
+The coordinator compares worker outputs and produces one decision.
 
 Synthesis must identify:
 - agreement,
@@ -67,7 +67,7 @@ Synthesis must identify:
 - verification gate,
 - writeback destination.
 
-Do not paste scout outputs as the final answer.
+Do not paste worker outputs as the final answer.
 
 ## 5. Verify
 
@@ -93,4 +93,4 @@ Examples:
 - changelog,
 - team wiki update.
 
-Avoid saving raw scout transcripts unless required for audit.
+Avoid saving raw worker transcripts unless required for audit.

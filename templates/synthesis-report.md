@@ -4,9 +4,9 @@
 
 <recommended action>
 
-## Scout inputs
+## Worker inputs
 
-| Scout | Recommendation | Confidence | Key evidence |
+| Worker | Recommendation | Confidence | Key evidence |
 |---|---|---|---|
 | research |  |  |  |
 | devil's advocate |  |  |  |

@@ -7,7 +7,7 @@ It is intentionally **not** an orchestration runtime. The architecture is a set 
 ## Core flow
 
 ```text
-Classify -> Retrieve -> Scout -> Synthesize -> Verify -> Writeback
+Classify -> Retrieve -> Worker -> Synthesize -> Verify -> Writeback
 ```
 
 ## Roles
@@ -18,7 +18,7 @@ The coordinator owns the final decision.
 
 Responsibilities:
 - decide whether Apiary is justified,
-- scope scouts,
+- scope workers,
 - minimize private context,
 - compare outputs,
 - resolve conflicts,
@@ -32,24 +32,24 @@ The coordinator can be:
 - a team facilitator,
 - a lightweight script/workflow.
 
-### Scouts
+### Workers
 
-Scouts are bounded independent perspectives.
+Workers are bounded independent perspectives.
 
-Common scout roles:
-- **Research scout:** facts, sources, prior art.
-- **Devil's advocate scout:** risks, instability, privacy/security, overkill.
-- **Adaptation scout:** how to implement in the current environment.
-- **Reviewer scout:** plan/diff/output review.
+Common worker roles:
+- **Research worker:** facts, sources, prior art.
+- **Risk/reviewer worker:** risks, instability, privacy/security, overkill.
+- **Adaptation worker:** how to implement in the current environment.
+- **Reviewer worker:** plan/diff/output review.
 
-Scouts advise. The coordinator decides.
+Workers advise. The coordinator decides.
 
 ## Artifacts
 
 | Artifact | Purpose |
 |---|---|
-| `templates/scout-brief.md` | Scope a scout before work starts |
-| `templates/scout-output.yaml` | Structured scout report |
+| `templates/worker-brief.md` | Scope a worker before work starts |
+| `templates/worker-output.yaml` | Structured worker report |
 | `templates/synthesis-report.md` | Coordinator's final synthesis |
 | `checklists/synthesis-checklist.md` | Prevent shallow synthesis |
 | `checklists/plan-screen-checklist.md` | Catch obvious safety issues |
@@ -65,7 +65,7 @@ Use markdown templates with humans or separate LLM chats.
 
 ### Tier 1: Chat assistant
 
-A single assistant coordinates scouts manually across chats or prompts.
+A single assistant coordinates workers manually across chats or prompts.
 
 ### Tier 2: Agent runtime
 

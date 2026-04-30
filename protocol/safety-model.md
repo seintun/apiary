@@ -15,7 +15,7 @@ Require explicit approval for:
 
 ## Privacy minimization
 
-Pass scouts only the context they need.
+Pass workers only the context they need.
 
 Prefer:
 - redacted excerpts,

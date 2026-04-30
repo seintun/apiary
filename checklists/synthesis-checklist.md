@@ -1,8 +1,8 @@
 # Synthesis Checklist
 
 - Did the task actually require Apiary?
-- What did scouts agree on?
-- What did scouts disagree on?
+- What did workers agree on?
+- What did workers disagree on?
 - Which claims have concrete evidence?
 - Did devil's advocate raise a veto-level risk?
 - Is there a simpler direct path?

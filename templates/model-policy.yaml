@@ -4,11 +4,11 @@
 # explicit model names and let the host runtime choose defaults/fallbacks.
 apiary:
   models:
-    cheapScout:
+    cheapWorker:
       prefer: auto
       required: false
       fallbackToDefault: true
-    balancedScout:
+    balancedWorker:
       prefer: auto
       required: false
       fallbackToDefault: true

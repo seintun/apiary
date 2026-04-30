@@ -4,7 +4,7 @@ Apiary-compliant coordinators:
 
 - classify before swarming,
 - skip Apiary for simple tasks,
-- scope scouts narrowly,
+- scope workers narrowly,
 - minimize private context,
 - synthesize centrally,
 - verify before completion,

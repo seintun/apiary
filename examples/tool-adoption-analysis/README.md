@@ -6,7 +6,7 @@ Should we adopt Tool X into our assistant workflow?
 
 ## Apiary setup
 
-Scouts:
+Workers:
 - research: what Tool X does and evidence
 - devil's advocate: risks, overlap, instability
 - adaptation: minimal native pattern if useful

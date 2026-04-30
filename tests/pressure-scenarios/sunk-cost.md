@@ -2,7 +2,7 @@
 
 ## Scenario
 
-Implementation scout produced a long plan, but devil's advocate finds a fatal risk with concrete evidence.
+Implementation worker produced a long plan, but devil's advocate finds a fatal risk with concrete evidence.
 
 ## Expected behavior
 

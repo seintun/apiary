@@ -15,7 +15,7 @@ flowchart LR
     A -. skip if simple .-> G[Direct answer / direct action]
 ```
 
-Apiary starts by deciding whether a task deserves multi-perspective work. Simple tasks stay direct. Complex or risky tasks move through retrieval, scouts, synthesis, verification, and durable writeback.
+Apiary starts by deciding whether a task deserves multi-perspective work. Simple tasks stay direct. Complex or risky tasks move through retrieval, workers, synthesis, verification, and durable writeback.
 
 ## Roles and artifacts
 
@@ -23,12 +23,12 @@ Apiary starts by deciding whether a task deserves multi-perspective work. Simple
 flowchart TB
     U[User / Team / Request] --> COORD[Coordinator]
 
-    COORD --> R[Research Scout]
-    COORD --> D[Devil's Advocate Scout]
-    COORD --> A[Adaptation Scout]
-    COORD --> V[Reviewer Scout]
+    COORD --> R[Research Worker]
+    COORD --> D[Devil's Advocate Worker]
+    COORD --> A[Adaptation Worker]
+    COORD --> V[Reviewer Worker]
 
-    R --> SR[Structured Scout Reports]
+    R --> SR[Structured Worker Reports]
     D --> SR
     A --> SR
     V --> SR
@@ -43,7 +43,7 @@ flowchart TB
     WB --> ISSUE[Issue / PR Comment]
 ```
 
-The coordinator owns the final decision. Scouts provide bounded perspectives. Durable writeback keeps useful learning from disappearing into chat history.
+The coordinator owns the final decision. Workers provide bounded perspectives. Durable writeback keeps useful learning from disappearing into chat history.
 
 ## Decision routing
 
@@ -57,8 +57,8 @@ flowchart TD
     RISK -- yes --> SCOPE[Define objective, constraints, forbidden actions]
 
     SCOPE --> COUNT{How broad/high-stakes?}
-    COUNT -- moderate --> TWO[Run 2 scouts: research/adaptation + devil's advocate]
-    COUNT -- broad/high-stakes --> THREE[Run 3 scouts: research + devil's advocate + adaptation]
+    COUNT -- moderate --> TWO[Run 2 workers: research/adaptation + devil's advocate]
+    COUNT -- broad/high-stakes --> THREE[Run 3 workers: research + devil's advocate + adaptation]
 
     TWO --> SYN[Synthesize]
     THREE --> SYN
@@ -75,7 +75,7 @@ flowchart TD
 
 Apiary is not “always swarm.” It defaults to direct work unless independent perspectives add value.
 
-## Scout lifecycle
+## Worker lifecycle
 
 ```mermaid
 stateDiagram-v2
@@ -88,13 +88,13 @@ stateDiagram-v2
     Synthesis --> [*]
 ```
 
-Scouts should stop cleanly when they are stuck, unsafe, or outside scope. This avoids runaway exploration.
+Workers should stop cleanly when they are stuck, unsafe, or outside scope. This avoids runaway exploration.
 
 ## Quorum and stop signals
 
 ```mermaid
 flowchart TD
-    REPORTS[Scout reports] --> VETO{Critical risk with evidence?}
+    REPORTS[Worker reports] --> VETO{Critical risk with evidence?}
     VETO -- yes --> STOP[Stop signal: pause, resolve, or abandon]
     VETO -- no --> QUORUM{2 of 3 agree with medium+ confidence?}
     QUORUM -- yes --> COMMIT[Commit with caveats]
@@ -103,7 +103,7 @@ flowchart TD
     DISAGREE -- no --> ASK[Escalate / ask human]
 ```
 
-A concrete devil's-advocate or reviewer risk can outweigh multiple optimistic scouts until resolved.
+A concrete devil's-advocate or reviewer risk can outweigh multiple optimistic workers until resolved.
 
 ## Platform independence
 

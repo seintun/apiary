@@ -18,4 +18,4 @@ Choose one destination:
 - team wiki
 - personal/agent memory
 
-Do not write back raw scout output unless audit requires it.
+Do not write back raw worker output unless audit requires it.

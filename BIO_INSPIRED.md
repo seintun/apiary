@@ -9,26 +9,26 @@ The metaphor is not decoration. Each mechanism maps to an engineering behavior.
 | Bio pattern | Natural function | Apiary system pattern | Generic mechanism | Status |
 |---|---|---|---|---|
 | Queen pheromone | Identity/coherence signal | Coordinator authority | Human/AI lead owns final synthesis | Core |
-| Worker bees / foragers | Parallel exploration | Scouts | Agents, humans, chats, reviewers, CI jobs | Core |
+| Worker bees / foragers | Parallel exploration | Workers | Agents, humans, chats, reviewers, CI jobs | Core |
 | Stigmergy | Trace-based coordination | Durable substrate | Docs, wiki, repo, notes, decision log | Core |
-| Waggle dance | Structured location/quality report | Scout output schema | YAML/JSON/markdown report | Core |
-| Apoptosis | Self-termination | Scout stop conditions | Scope/cost/confidence limits | Core |
+| Waggle dance | Structured location/quality report | Worker output schema | YAML/JSON/markdown report | Core |
+| Apoptosis | Self-termination | Worker stop conditions | Scope/cost/confidence limits | Core |
 | Stop signal | Negative feedback | Abort bad paths | Devil's advocate/reviewer veto | Core |
-| Quorum sensing | Evidence-weighted convergence | Decision threshold | 2-of-3, targeted resolving scout | Core |
+| Quorum sensing | Evidence-weighted convergence | Decision threshold | 2-of-3, targeted resolving worker | Core |
 | Adaptive immunity | Learned defense | Devil's advocate | Risk/security/privacy review | Core |
 | Innate immunity | Cheap generic defense | Plan screen | Checklist/static checks | Optional |
 | Pheromone decay | Memory aging | Review/prune durable knowledge | Docs review, archive, decay metadata | Optional |
 | Symbiosis | Stable specialist relationship | Persistent specialist | Domain expert, recurring agent/session | Optional |
 | Mycelium / pull-based flow | Nutrients move on demand | Lazy context loading | Minimal context, source retrieval first | Principle |
-| Circadian rhythm | Phased cycles | Workflow stages | Classify -> retrieve -> scout -> synthesize -> verify -> writeback | Principle |
+| Circadian rhythm | Phased cycles | Workflow stages | Classify -> retrieve -> worker -> synthesize -> verify -> writeback | Principle |
 
 ## Practical mechanism summary
 
 | Mechanism | Apiary behavior |
 |---|---|
-| Foraging | Use bounded scouts for independent perspectives |
-| Waggle dance | Require structured scout reports for non-trivial runs |
-| Apoptosis | Stop scouts that are stuck, unsafe, or out of scope |
+| Foraging | Use bounded workers for independent perspectives |
+| Waggle dance | Require structured worker reports for non-trivial runs |
+| Apoptosis | Stop workers that are stuck, unsafe, or out of scope |
 | Stop signal | Let strong risk evidence pause or abort a bad path |
 | Quorum sensing | Commit when enough independent evidence converges |
 | Stigmergy | Save durable decisions to docs/runbooks/issues |

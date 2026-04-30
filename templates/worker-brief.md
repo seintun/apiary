@@ -1,4 +1,4 @@
-# Scout Brief
+# Worker Brief
 
 ## Role
 
@@ -6,7 +6,7 @@
 
 ## Objective
 
-<what this scout must answer>
+<what this worker must answer>
 
 ## Context
 
@@ -34,4 +34,4 @@ Stop and return a low-quality/abandon report if:
 
 ## Output
 
-Return the shape in `templates/scout-output.yaml`. Keep notes short.
+Return the shape in `templates/worker-output.yaml`. Keep notes short.

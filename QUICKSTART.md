@@ -6,23 +6,23 @@
 
    Is this task complex enough for Apiary? If not, answer directly.
 
-2. **Pick scouts**
+2. **Pick workers**
 
-   For most non-trivial tasks, use two scouts:
+   For most non-trivial tasks, use two workers:
    - research/adaptation,
    - devil's advocate.
 
-3. **Create scout briefs**
+3. **Create worker briefs**
 
-   Copy `templates/scout-brief.md` once per scout and fill in:
+   Copy `templates/worker-brief.md` once per worker and fill in:
    - role,
    - objective,
    - minimal context,
    - forbidden actions.
 
-4. **Collect scout outputs**
+4. **Collect worker outputs**
 
-   Ask each scout to return `templates/scout-output.yaml` format.
+   Ask each worker to return `templates/worker-output.yaml` format.
 
 5. **Synthesize**
 
@@ -36,12 +36,12 @@
 
    Save only durable conclusions using `checklists/writeback-checklist.md`.
 
-## Example scout set
+## Example worker set
 
 ```text
-Scout A: Research what Tool X does, evidence, and comparable alternatives.
-Scout B: Find risks, overlap, instability, privacy concerns, and reasons not to adopt.
-Scout C: Map useful ideas into our current workflow without adopting Tool X directly.
+Worker A: Research what Tool X does, evidence, and comparable alternatives.
+Worker B: Find risks, overlap, instability, privacy concerns, and reasons not to adopt.
+Worker C: Map useful ideas into our current workflow without adopting Tool X directly.
 ```
 
 ## Rule of thumb

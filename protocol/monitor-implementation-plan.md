@@ -113,10 +113,10 @@ projects/apiary-protocol/
   },
   "scouts": [
     {
-      "id": "ux-scout",
-      "label": "Dashboard UX scout",
-      "role": "uxScout",
-      "modelRole": "cheapScout",
+      "id": "ux-worker",
+      "label": "Dashboard UX worker",
+      "role": "uxWorker",
+      "modelRole": "cheapWorker",
       "model": "openai-codex/gpt-5.4-mini",
       "status": "done",
       "sessionKey": "agent:main:subagent:...",
@@ -135,8 +135,8 @@ projects/apiary-protocol/
       "ts": "2026-04-30T01:33:00.000Z",
       "type": "state",
       "severity": "info",
-      "scoutId": "ux-scout",
-      "message": "Scout started."
+      "scoutId": "ux-worker",
+      "message": "Worker started."
     }
   ],
   "decisionAwaiting": null
@@ -145,7 +145,7 @@ projects/apiary-protocol/
 
 ## Status enums
 
-Run/scout statuses:
+Run/worker statuses:
 
 ```text
 queued | running | waiting_tool | waiting_user | blocked | retrying | done | failed | canceled | stale
@@ -178,29 +178,29 @@ node scripts/apiary-run.mjs start \
   --title "Dashboard design" \
   --adapter openclaw
 
-node scripts/apiary-run.mjs scout-start \
+node scripts/apiary-run.mjs worker-start \
   --run <run-id> \
-  --id ux-scout \
-  --label "Dashboard UX scout" \
-  --role uxScout \
-  --model-role cheapScout \
+  --id ux-worker \
+  --label "Dashboard UX worker" \
+  --role uxWorker \
+  --model-role cheapWorker \
   --model openai-codex/gpt-5.4-mini \
   --session-key agent:main:subagent:...
 
-node scripts/apiary-run.mjs scout-update \
+node scripts/apiary-run.mjs worker-update \
   --run <run-id> \
-  --id ux-scout \
+  --id ux-worker \
   --status running \
   --summary "Gathering UX patterns"
 
-node scripts/apiary-run.mjs scout-complete \
+node scripts/apiary-run.mjs worker-complete \
   --run <run-id> \
-  --id ux-scout \
+  --id ux-worker \
   --summary "Proposed Hive Board metaphor."
 
-node scripts/apiary-run.mjs scout-fail \
+node scripts/apiary-run.mjs worker-fail \
   --run <run-id> \
-  --id ux-scout \
+  --id ux-worker \
   --message "Model unavailable; fallback failed."
 
 node scripts/apiary-run.mjs event \
@@ -218,7 +218,7 @@ Implementation details:
 - Recompute registry summary after every write.
 - Preserve event history append-only.
 - Validate status enums before writing.
-- Redact or omit raw scout content by default.
+- Redact or omit raw worker content by default.
 
 ### `scripts/apiary-monitor.mjs`
 
@@ -239,9 +239,9 @@ APIARY HIVE — latest
 Status: running · 2 done · 1 running · 0 blocked · updated 12s ago
 
 ROLE        LABEL                  MODEL ROLE    MODEL/ROUTE       STATUS
-uxScout     Dashboard UX scout     cheapScout    gpt-5.4-mini      done
-techScout   Dashboard tech scout   cheapScout    gpt-5.4-mini      running
-reviewer    Risk scout             reviewer      host-default      done
+uxWorker     Dashboard UX worker     cheapWorker    gpt-5.4-mini      done
+techWorker   Dashboard tech worker   cheapWorker    gpt-5.4-mini      running
+reviewer    Risk worker             reviewer      host-default      done
 
 Awaiting: none
 ```
@@ -266,10 +266,10 @@ Serves `dashboard/` and `runs/`. Optional; dashboard can also be exposed through
   - running / waiting / blocked / done / failed
   - last refresh
   - privacy mode indicator
-- Main: honeycomb scout cells
-  - each cell = one scout/subagent
+- Main: honeycomb worker cells
+  - each cell = one worker/subagent
   - state shown by icon + label + color + subtle animation
-- Side panel: selected scout details
+- Side panel: selected worker details
   - plain-language objective
   - status
   - model role and route
@@ -307,7 +307,7 @@ done          -> Finished
 
 Default overview should avoid sensitive details:
 
-- show scout labels and generic summaries only
+- show worker labels and generic summaries only
 - hide raw paths, snippets, and tool outputs
 - details reveal requires explicit click/toggle
 - add `privacyMode: true` to run ledger
@@ -335,9 +335,9 @@ No framework, no package install, no bundler.
 Cases:
 
 1. start creates valid run + registry
-2. scout-start adds scout and running summary
-3. scout-complete updates status, progress, summary
-4. scout-fail records failure event
+2. worker-start adds worker and running summary
+3. worker-complete updates status, progress, summary
+4. worker-fail records failure event
 5. invalid status is rejected
 6. registry summary counts statuses correctly
 7. stale detection helper marks old `lastSeenAt`
@@ -349,7 +349,7 @@ Keep simple:
 
 - fixture registry/run loads in a browser
 - app renders expected count text
-- selecting a scout opens side panel
+- selecting a worker opens side panel
 - reduced-motion CSS present
 - privacy mode hides details by default
 
@@ -369,7 +369,7 @@ Deliver:
 
 Acceptance:
 
-- Can start a run, add scouts, complete/fail scouts, complete run.
+- Can start a run, add workers, complete/fail workers, complete run.
 - Terminal monitor shows latest run accurately.
 - Tests pass with Node built-in test runner.
 
@@ -388,7 +388,7 @@ Deliver:
 Acceptance:
 
 - Opens locally through static server.
-- Shows hive health, honeycomb scout cells, event timeline.
+- Shows hive health, honeycomb worker cells, event timeline.
 - Polls JSON and updates after ledger script changes.
 - No external network or dependencies.
 
@@ -396,11 +396,11 @@ Acceptance:
 
 Deliver:
 
-- Update local Apiary skill to call `apiary-run.mjs` before/after scout spawn/completion.
+- Update local Apiary skill to call `apiary-run.mjs` before/after worker spawn/completion.
 - Document OpenClaw mapping:
-  - `sessions_spawn accepted` -> `scout-start`
-  - completion success -> `scout-complete`
-  - completion failure -> `scout-fail`
+  - `sessions_spawn accepted` -> `worker-start`
+  - completion success -> `worker-complete`
+  - completion failure -> `worker-fail`
   - user decision needed -> `waiting_user`
 
 Acceptance:
@@ -427,14 +427,14 @@ Acceptance:
 
 ## First build slice recommendation
 
-Build Phase 1 first. Then immediately test it with one real two-scout Apiary run. Only after the ledger is trustworthy should we build the cute dashboard on top.
+Build Phase 1 first. Then immediately test it with one real two-worker Apiary run. Only after the ledger is trustworthy should we build the cute dashboard on top.
 
 Suggested first command flow:
 
 ```bash
 RUN_ID=$(node scripts/apiary-run.mjs start --title "Monitor MVP test" --adapter openclaw --json | jq -r .runId)
-node scripts/apiary-run.mjs scout-start --run "$RUN_ID" --id ux --label "UX scout" --role uxScout --model-role cheapScout
-node scripts/apiary-run.mjs scout-complete --run "$RUN_ID" --id ux --summary "Hive Board direction validated."
+node scripts/apiary-run.mjs worker-start --run "$RUN_ID" --id ux --label "UX worker" --role uxWorker --model-role cheapWorker
+node scripts/apiary-run.mjs worker-complete --run "$RUN_ID" --id ux --summary "Hive Board direction validated."
 node scripts/apiary-monitor.mjs --run "$RUN_ID"
 ```
 
@@ -465,15 +465,15 @@ After the first mobile/Tailscale trial and Apiary audit, the monitor was hardene
 
 ### Reliability fixes
 
-- `apiary-run complete` refuses to complete a run with unfinished scouts unless `--force` is supplied.
-- Dashboard derives stale display for active scouts when `lastSeenAt` is older than the client-side threshold.
+- `apiary-run complete` refuses to complete a run with unfinished workers unless `--force` is supplied.
+- Dashboard derives stale display for active workers when `lastSeenAt` is older than the client-side threshold.
 - Malformed JSON handling is more defensive in the ledger/monitor path.
 - Tests cover completion guardrails and malformed JSON fallback.
 
 ### UX fixes
 
 - Mobile copy now uses shorter wording.
-- User-facing dashboard language favors “worker” over internal “scout” where helpful.
+- User-facing dashboard language favors “worker” over internal “worker” where helpful.
 - Help affordances were simplified to avoid clutter.
 - Mobile detail panels were compressed with fact-chip style layout.
 

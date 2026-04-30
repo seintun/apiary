@@ -8,8 +8,8 @@ Public/default Apiary MUST work with zero model configuration. When no local mod
 
 | Role | Purpose | Default behavior |
 |---|---|---|
-| `cheapScout` | Low-cost extraction, file inspection, summarization, mechanical evidence gathering | Host default |
-| `balancedScout` | Bounded research, comparison, moderate analysis | Host default |
+| `cheapWorker` | Low-cost extraction, file inspection, summarization, mechanical evidence gathering | Host default |
+| `balancedWorker` | Bounded research, comparison, moderate analysis | Host default |
 | `strongJudge` | Final synthesis, architecture judgment, tradeoff decisions | Host default |
 | `reviewer` | Devil's advocate, security/risk review, migration risk | Host default |
 | `fallbackSafe` | Last-resort recovery when a preferred model is unavailable | Host default |
@@ -17,9 +17,9 @@ Public/default Apiary MUST work with zero model configuration. When no local mod
 ## Policy rules
 
 1. **Zero config works.** If no local policy exists, do not pass an explicit model.
-2. **Roles are portable.** Docs and public templates should say `cheapScout`, not a provider-specific model.
+2. **Roles are portable.** Docs and public templates should say `cheapWorker`, not a provider-specific model.
 3. **Preferences are soft by default.** A configured model is a preference unless `required: true` is set.
-4. **Retry once on soft preference failure.** If a preferred model fails, retry the same scout once with no explicit model.
+4. **Retry once on soft preference failure.** If a preferred model fails, retry the same worker once with no explicit model.
 5. **Required means required.** Only use `required: true` when the user explicitly asks for a specific model/provider/local-only run.
 6. **Avoid loops.** Do not keep cycling through model names inside Apiary; delegate broad fallback handling to the host runtime.
 7. **Make choices inspectable.** When useful, summarize the roles used and whether explicit models were applied.
@@ -28,10 +28,10 @@ Public/default Apiary MUST work with zero model configuration. When no local mod
 
 ## Resolution order
 
-For a role such as `cheapScout`, adapters should resolve in this order:
+For a role such as `cheapWorker`, adapters should resolve in this order:
 
 1. Local Apiary config for that role, if present.
-2. Adapter/runtime-specific scout defaults, if present.
+2. Adapter/runtime-specific worker defaults, if present.
 3. Host/session default by omitting the model.
 
 If resolution returns `auto`, `default`, `host-default`, `null`, or no value, omit the model.
@@ -41,7 +41,7 @@ If resolution returns `auto`, `default`, `host-default`, `null`, or no value, om
 ```yaml
 apiary:
   models:
-    cheapScout:
+    cheapWorker:
       prefer: auto
       required: false
       fallbackToDefault: true
