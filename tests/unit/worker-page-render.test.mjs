@@ -71,6 +71,7 @@ test('ledger-derived fallback avoids repeating the same summary in every section
   assert.ok(workerJs.includes('function derivedDoing(worker)'), 'Current focus should be derived separately from the summary')
   assert.ok(workerJs.includes('Completion recorded in the run ledger'), 'Completed work should not repeat the snapshot summary verbatim')
   assert.ok(workerJs.includes('function eventSummariesFor(worker, run)'), 'Findings should come from worker events, not a repeated ledger summary')
+  assert.ok(workerJs.includes('eventStamp(e.ts)'), 'Event-derived findings should include timestamps')
   assert.ok(!workerJs.includes('Ledger summary:'), 'Findings should not duplicate the snapshot summary with a prefix')
 })
 

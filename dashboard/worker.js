@@ -58,7 +58,7 @@ function eventSummariesFor(worker, run){
     .filter((e)=>e.scoutId === worker.id)
     .slice(-3)
     .reverse()
-    .map((e)=>e.summary || e.message)
+    .map((e)=>`${eventStamp(e.ts)} · ${e.summary || e.message || 'Event'}`)
     .filter(Boolean)
 }
 function derivedDoing(worker){
