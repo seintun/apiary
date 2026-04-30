@@ -12,10 +12,10 @@
       <div>
         <p class="eyebrow">Apiary Monitor</p>
         <h1>Hive Board</h1>
-        <p class="lede"><span class="lede-full">A calm, friendly view of scouts, blockers, and decisions.</span><span class="lede-short">Scouts, blockers, decisions.</span><button class="tip inline-tip" type="button" aria-label="What is the Hive Board?" data-tip="The Hive Board shows one Apiary run: scouts are worker agents, statuses show what they are doing, and signals show recent changes.">i</button></p>
+        <p class="lede"><span class="lede-full">A calm, friendly view of workers, blockers, and decisions.</span><span class="lede-short">Workers, blockers, decisions.</span><button class="tip inline-tip" type="button" aria-label="What is the Hive Board?" data-tip="The Hive Board shows one Apiary run: workers are scout agents, statuses show what they are doing, and signals show recent changes. Privacy mode is display-only; raw local ledger JSON remains readable to anyone with dashboard access.">i</button></p>
       </div>
       <div class="actions">
-        <button id="privacyToggle" class="ghost" type="button" data-tip="Privacy mode keeps overview text safe for screen sharing. Select a scout to reveal its concise summary.">Privacy: on</button>
+        <button id="privacyToggle" class="ghost" type="button" data-tip="Privacy mode is for screen sharing and glance privacy only. It does not encrypt or hide the raw local ledger JSON from someone who already has dashboard access.">Privacy: on</button>
         <button id="motionToggle" class="ghost" type="button">Focus mode</button>
         <button id="refreshBtn" type="button">Refresh</button>
       </div>
@@ -36,13 +36,13 @@
 
     <section class="workspace">
       <div class="hive-panel">
-        <div class="section-title compact"><h2>Scout cells <button class="tip" type="button" aria-label="Scout cells help" data-tip="Each honeycomb cell is a scout/subagent. Tap a cell to see role, model route, last update, summary, and anything awaiting you.">i</button></h2></div>
+        <div class="section-title compact"><h2>Worker cells <button class="tip" type="button" aria-label="Worker cells help" data-tip="Each honeycomb cell is a scout/subagent. Tap a cell to see role, model route, last update, summary, and anything awaiting you.">i</button></h2></div>
         <div id="hive" class="hive" aria-label="Scout honeycomb"></div>
       </div>
       <aside class="details" aria-live="polite">
-        <p class="eyebrow">Selected scout <button class="tip" type="button" aria-label="Selected scout help" data-tip="This panel explains the selected worker: its role, model route, freshness, summary, and whether it needs input.">i</button></p>
+        <p class="eyebrow">Selected worker <button class="tip" type="button" aria-label="Selected worker help" data-tip="This panel explains the selected worker: its role, model route, freshness, summary, and whether it needs input.">i</button></p>
         <h2 id="detailTitle">Pick a cell</h2>
-        <p id="detailStatus" class="badge">No scout selected</p>
+        <p id="detailStatus" class="badge">No worker selected</p>
         <dl>
           <dt>Role <button class="mini-tip" type="button" aria-label="Role help" data-tip="The scout's job in the swarm, such as UX scout, tech scout, reviewer, or ledger agent.">i</button></dt><dd id="detailRole">—</dd>
           <dt>Model <button class="mini-tip" type="button" aria-label="Model route help" data-tip="The Apiary model role and actual route. host-default means OpenClaw/runtime chose the model.">i</button></dt><dd id="detailModel">—</dd>
