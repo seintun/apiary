@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import crypto from 'node:crypto'
 
-export const STATUSES = new Set(['queued','running','waiting_tool','waiting_user','blocked','retrying','done','failed','canceled','stale'])
+export const STATUSES = new Set(['queued','running','waiting_tool','waiting_user','waiting_model','needs_review','needs_tests','blocked','retrying','done','failed','canceled','stale'])
 export const EVENT_TYPES = new Set(['state','log','heartbeat','warning','error','artifact','decision'])
 export const SEVERITIES = new Set(['info','success','warning','danger'])
 const ROOT = path.resolve(new URL('..', import.meta.url).pathname)
@@ -57,18 +57,21 @@ function event(type, message, scoutId = null, severity = 'info') {
 export function summarize(scouts = []) {
   const summary = { total: scouts.length, queued:0, running:0, waiting:0, blocked:0, done:0, failed:0, canceled:0, stale:0 }
   for (const s of scouts) {
-    if (s.status === 'waiting_tool' || s.status === 'waiting_user') summary.waiting++
+    if (['waiting_tool','waiting_user','waiting_model','needs_review','needs_tests'].includes(s.status)) summary.waiting++
     else if (summary[s.status] != null) summary[s.status]++
   }
   return summary
 }
 function deriveRunStatus(run) {
   if (run.finalized === true) return run.status
-  if (['failed','canceled','blocked','waiting_user'].includes(run.status)) return run.status
+  if (['failed','canceled','blocked','waiting_user','waiting_model','needs_review','needs_tests'].includes(run.status)) return run.status
   const scouts = run.scouts || []
   if (scouts.some(s => s.status === 'failed')) return 'failed'
   if (scouts.some(s => s.status === 'blocked')) return 'blocked'
   if (scouts.some(s => s.status === 'waiting_user')) return 'waiting_user'
+  if (scouts.some(s => s.status === 'waiting_model')) return 'waiting_model'
+  if (scouts.some(s => s.status === 'needs_review')) return 'needs_review'
+  if (scouts.some(s => s.status === 'needs_tests')) return 'needs_tests'
   if (scouts.length && scouts.every(s => s.status === 'done')) return 'done'
   if (scouts.some(s => ['running','retrying','waiting_tool','queued'].includes(s.status))) return 'running'
   return run.status || 'running'
@@ -135,7 +138,7 @@ function buildReportFields(args) {
   }
 }
 function usage() {
-  console.log(`Usage: apiary-run <command> [options]\nCommands: start, worker-start, worker-update, worker-complete, worker-fail, event, complete, sweep-stale
+  console.log(`Usage: apiary-run <command> [options]\nCommands: start, worker-start, worker-update, worker-complete, worker-fail, event, complete, sweep-stale, reconcile
 Legacy aliases: scout-start, scout-update, scout-complete, scout-fail\nUse --json for machine-readable output.`)
 }
 export function handle(argv) {
@@ -181,6 +184,33 @@ export function handle(argv) {
   if (cmd === 'event') {
     run.events.push(event(args.type || 'log', args.message || '', args['scout-id'] || null, args.severity || 'info'))
     return { run: saveRun(run) }
+  }
+
+
+  if (cmd === 'reconcile') {
+    const id = args.id; if (!id) throw new Error('--id is required')
+    const scout = run.scouts.find(s => s.id === id); if (!scout) throw new Error(`Worker not found: ${id}`)
+    const outcome = String(args.outcome || args.status || '').toLowerCase()
+    if (!outcome) throw new Error('--outcome is required (success|done|failed|timeout|running|needs_review|needs_tests|waiting_model)')
+    const message = args.summary || args.message || `Reconciled worker from outcome: ${outcome}`
+    if (['success','done','completed','complete'].includes(outcome)) {
+      scout.status = 'done'; scout.progress = 100; scout.completedAt = now(); scout.awaiting = null
+    } else if (['failed','failure','error'].includes(outcome)) {
+      scout.status = 'failed'; scout.completedAt = now(); scout.awaiting = null
+    } else if (['timeout','timed_out'].includes(outcome)) {
+      scout.status = 'failed'; scout.completedAt = now(); scout.awaiting = message
+    } else if (['running','active'].includes(outcome)) {
+      scout.status = 'running'; scout.awaiting = null
+    } else if (['needs_review','needs-tests','needs_tests','waiting_model'].includes(outcome)) {
+      scout.status = outcome.replace('-', '_')
+      scout.awaiting = message
+    } else {
+      scout.status = requireStatus(outcome)
+    }
+    scout.lastSeenAt = now()
+    if (message) scout.summary = message
+    run.events.push(event(scout.status === 'failed' ? 'error' : 'state', `Worker reconciled: ${scout.label || scout.id} → ${scout.status}. ${message}`, id, scout.status === 'failed' ? 'danger' : scout.status === 'done' ? 'success' : 'info'))
+    return { run: saveRun(run), output: args.json ? JSON.stringify({ runId, id, status: scout.status }) : `${id}: ${scout.status}` }
   }
 
   if (cmd === 'sweep-stale') {

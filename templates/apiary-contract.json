@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "apiary.contract.v1",
+  "title": "Example Apiary implementation contract",
+  "canonicalFields": [],
+  "fieldShape": "documented-before-parallel-work",
+  "legacyCompatibility": [],
+  "responsibilities": {
+    "coordinator": ["own final decision", "run gates", "commit only tested work"],
+    "workers": ["conform to this contract", "stop and report if contract is insufficient"],
+    "reviewer": ["verify actual files, not summaries"]
+  },
+  "mustPass": [
+    "syntax checks for touched JS",
+    "schema validation for written JSON",
+    "CLI round-trip when CLI changes",
+    "dashboard/worker-page tests when UI changes",
+    "strong reviewer pass before commit"
+  ],
+  "mergePolicy": {
+    "allowFallbackDrafts": true,
+    "requireStrongReviewAfterFallback": true,
+    "allWorkersTerminalBeforeClose": true,
+    "noStaleWorkersBeforeMerge": true
+  }
+}

@@ -1,6 +1,6 @@
 const $ = (id) => document.getElementById(id)
-const labels = { queued:'Queued', running:'Gathering', waiting_tool:'Waiting on tool', waiting_user:'Waiting for you', blocked:'Blocked', retrying:'Trying again', done:'Finished', failed:'Failed', canceled:'Canceled', stale:'Quiet too long' }
-const icons = { queued:'○', running:'🐝', waiting_tool:'🛠️', waiting_user:'👋', blocked:'⚠️', retrying:'↻', done:'🍯', failed:'✕', canceled:'−', stale:'…' }
+const labels = { queued:'Queued', running:'Gathering', waiting_tool:'Waiting on tool', waiting_user:'Waiting for you', waiting_model:'Waiting for model', needs_review:'Needs review', needs_tests:'Needs tests', blocked:'Blocked', retrying:'Trying again', done:'Finished', failed:'Failed', canceled:'Canceled', stale:'Quiet too long' }
+const icons = { queued:'○', running:'🐝', waiting_tool:'🛠️', waiting_user:'👋', waiting_model:'⏳', needs_review:'🔎', needs_tests:'🧪', blocked:'⚠️', retrying:'↻', done:'🍯', failed:'✕', canceled:'−', stale:'…' }
 const eventKindLabels = {
   'task.created':'Task born', 'command.sent':'Command issued', 'decision.made':'Decision made', 'worker.dispatched':'Worker dispatched',
   'run.started':'Worker started', 'run.log':'Worker log', 'run.completed':'Worker completed', 'run.failed':'Worker failed', 'artifact.created':'Artifact saved',
@@ -12,7 +12,7 @@ const workerTypeIcons = [
   [/safety/i, '🦺🐝'], [/reliab|test|verify/i, '✅🐝'],
 ]
 function workerIcon(worker){ const key=`${worker?.role||''} ${worker?.label||''} ${worker?.id||''}`; return workerTypeIcons.find(([re])=>re.test(key))?.[1] || '🐝' }
-const activeStatuses = new Set(['queued','running','waiting_tool','retrying'])
+const activeStatuses = new Set(['queued','running','waiting_tool','retrying','waiting_model','needs_review','needs_tests'])
 const STALE_AFTER_MS = 5 * 60 * 1000
 let currentRun = null, selectedId = null, privacy = false, healthFilter = 'all', historyFilter = 'all', historyScroll = { all:0, active:0, done:0 }, chipScroll = 0, runRegistry = [], selectedRunId = null, eventFilter = 'all', lastRunUpdatedAt = 0
 function age(iso){ if(!iso) return '—'; const s=Math.max(0,Math.round((Date.now()-new Date(iso))/1000)); if(s<60)return `${s}s ago`; const m=Math.round(s/60); return m<60?`${m}m ago`:`${Math.round(m/60)}h ago` }
@@ -88,7 +88,7 @@ function stableRender(){
   requestAnimationFrame(()=>window.scrollTo(x,y))
 }
 function render(){ const run=currentRun; if(!run) return; const workers=run.scouts||[]; const sum=summaryWithStale(run); $('countRunning').textContent=sum.running||0; $('countWaiting').textContent=sum.waiting||0; $('countBlocked').textContent=sum.blocked||0; $('countDone').textContent=sum.done||0; renderHealthCards(sum); $('runTitle').textContent=run.title; $('runMeta').textContent=`${labels[run.status]||run.status} · updated ${age(run.updatedAt)}`; $('decision').classList.toggle('hidden',!run.decisionAwaiting); $('decision').textContent=run.decisionAwaiting?`Waiting for you: ${run.decisionAwaiting}`:''; renderRunHistory(); renderTaskProvenance(taskForRun(run)); renderHealthWorkers(workers); renderEvents(run.events||[]); renderDetails(workers.find(s=>s.id===selectedId)); $('lastRefresh').textContent=`Refreshed ${new Date().toLocaleTimeString()}`; pulseLiveIndicator(run.updatedAt) }
-function filterKind(worker){ const status=displayStatus(worker); if(status==='waiting_tool'||status==='waiting_user') return 'waiting'; if(status==='blocked'||status==='failed') return 'blocked'; if(status==='done'||status==='canceled') return 'done'; return 'running' }
+function filterKind(worker){ const status=displayStatus(worker); if(['waiting_tool','waiting_user','waiting_model','needs_review','needs_tests'].includes(status)) return 'waiting'; if(status==='blocked'||status==='failed') return 'blocked'; if(status==='done'||status==='canceled') return 'done'; return 'running' }
 function visibleWorkers(workers){ return healthFilter==='all' ? workers : workers.filter(w=>filterKind(w)===healthFilter) }
 function renderHealthCards(sum){
   for(const card of document.querySelectorAll('.health-card')){ const filter=card.dataset.filter; const count=sum[filter]||0; card.classList.toggle('selected', healthFilter===filter); card.disabled=count===0; card.setAttribute('aria-pressed', healthFilter===filter ? 'true':'false'); card.setAttribute('aria-label', `${labels[filter]||filter}: ${count}. ${healthFilter===filter ? 'Selected filter' : 'Filter workers'}`) }

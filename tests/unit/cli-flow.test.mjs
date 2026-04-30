@@ -38,6 +38,27 @@ test('apiary-run CLI creates monitor-readable ledger', () => {
   cleanupRun(runId)
 })
 
+test('apiary-run reconcile maps completion outcomes back into worker state', () => {
+  const title = `CLI reconcile flow ${Date.now()}`
+  const start = spawnSync(process.execPath, ['scripts/apiary-run.mjs', 'start', '--title', title], { cwd: repo, encoding: 'utf8' })
+  assert.equal(start.status, 0, start.stderr)
+  const runId = start.stdout.trim()
+
+  let step = spawnSync(process.execPath, ['scripts/apiary-run.mjs', 'worker-start', '--run', runId, '--id', 'phase-a', '--label', 'Phase A'], { cwd: repo, encoding: 'utf8' })
+  assert.equal(step.status, 0, step.stderr)
+  step = spawnSync(process.execPath, ['scripts/apiary-run.mjs', 'reconcile', '--run', runId, '--id', 'phase-a', '--outcome', 'success', '--summary', 'Subagent completed and reviewed'], { cwd: repo, encoding: 'utf8' })
+  assert.equal(step.status, 0, step.stderr)
+
+  const run = JSON.parse(fs.readFileSync(path.join(repo, 'runs', `${runId}.json`), 'utf8'))
+  const scout = run.scouts.find((item) => item.id === 'phase-a')
+  assert.equal(scout.status, 'done')
+  assert.equal(scout.progress, 100)
+  assert.equal(scout.summary, 'Subagent completed and reviewed')
+  assert.ok(scout.completedAt)
+
+  cleanupRun(runId)
+})
+
 test('apiary-run CLI writes canonical flat report fields with repeated bullets', () => {
   const title = `CLI report flow ${Date.now()}`
   const start = spawnSync(process.execPath, ['scripts/apiary-run.mjs', 'start', '--title', title], { cwd: repo, encoding: 'utf8' })

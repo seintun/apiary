@@ -378,3 +378,27 @@ Workers advise. The coordinator decides.
 ## License
 
 MIT License. See [LICENSE](LICENSE).
+
+## Multi-worker implementation guardrails
+
+For non-trivial implementation work, use a small contract before spawning parallel workers. Start from `templates/apiary-contract.json` and include the canonical field shapes, ownership boundaries, and required gates. Workers should conform to the contract; if they cannot, they should stop and report the mismatch instead of inventing a parallel shape.
+
+Before merging, use `checklists/merge-readiness-checklist.md`.
+
+Lifecycle helpers:
+
+```bash
+# Reconcile a completed subagent/worker back into the run ledger
+node scripts/apiary-run.mjs reconcile \
+  --run <run-id> \
+  --id <worker-id> \
+  --outcome success \
+  --summary "Completed and reviewed"
+
+# Mark explicit review/test/model waits instead of letting workers become stale
+node scripts/apiary-run.mjs worker-update --run <run-id> --id <worker-id> --status needs_review --awaiting "Strong reviewer pass"
+node scripts/apiary-run.mjs worker-update --run <run-id> --id <worker-id> --status needs_tests --awaiting "Test gate"
+node scripts/apiary-run.mjs worker-update --run <run-id> --id <worker-id> --status waiting_model --awaiting "Waiting for preferred model quota"
+```
+
+Recommended merge rule: cheap/fallback model output may draft implementation, but schema, CLI, UI, path/security logic, and cross-file integrations require a strong reviewer pass and green tests before commit.
