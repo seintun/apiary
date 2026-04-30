@@ -42,6 +42,7 @@ export function readJson(file, fallback) {
 }
 function runPath(runId) { return path.join(RUNS_DIR, `${runId}.json`) }
 function registryPathFor(runId) { return `runs/${runId}.json` }
+function canonicalCommand(cmd) { return String(cmd || '').replace(/^worker-/, 'scout-') }
 function event(type, message, scoutId = null, severity = 'info') {
   if (!EVENT_TYPES.has(type)) throw new Error(`Invalid event type: ${type}`)
   if (!SEVERITIES.has(severity)) throw new Error(`Invalid severity: ${severity}`)
@@ -98,11 +99,12 @@ function upsertScout(run, scout) {
   else run.scouts.push(scout)
 }
 function usage() {
-  console.log(`Usage: apiary-run <command> [options]\nCommands: start, scout-start, scout-update, scout-complete, scout-fail, event, complete\nUse --json for machine-readable output.`)
+  console.log(`Usage: apiary-run <command> [options]\nCommands: start, worker-start, worker-update, worker-complete, worker-fail, event, complete
+Legacy aliases: scout-start, scout-update, scout-complete, scout-fail\nUse --json for machine-readable output.`)
 }
 export function handle(argv) {
   const args = parseArgs(argv)
-  const cmd = args._[0]
+  const cmd = canonicalCommand(args._[0])
   if (!cmd || cmd === 'help') return { text: usage() }
   ensureRunsDir()
   if (cmd === 'start') {
@@ -118,21 +120,21 @@ export function handle(argv) {
   if (!runId) throw new Error('--run is required')
   const run = loadRun(runId)
   if (cmd === 'scout-start') {
-    const id = args.id || args.label || `scout-${run.scouts.length+1}`
+    const id = args.id || args.label || `worker-${run.scouts.length+1}`
     const t = now()
-    upsertScout(run, { id, label: args.label || id, role: args.role || 'scout', modelRole: args['model-role'] || 'default', model: args.model || null, status: requireStatus(args.status || 'running'), sessionKey: args['session-key'] || null, startedAt: t, lastSeenAt: t, completedAt: null, progress: Number(args.progress ?? 0), summary: args.summary || '', awaiting: args.awaiting || null, artifactPaths: [] })
-    run.events.push(event('state', `Scout started: ${args.label || id}`, id))
+    upsertScout(run, { id, label: args.label || id, role: args.role || 'worker', modelRole: args['model-role'] || 'default', model: args.model || null, status: requireStatus(args.status || 'running'), sessionKey: args['session-key'] || null, startedAt: t, lastSeenAt: t, completedAt: null, progress: Number(args.progress ?? 0), summary: args.summary || '', awaiting: args.awaiting || null, artifactPaths: [] })
+    run.events.push(event('state', `Worker started: ${args.label || id}`, id))
     return { run: saveRun(run) }
   }
   if (cmd === 'scout-update' || cmd === 'scout-complete' || cmd === 'scout-fail') {
     const id = args.id; if (!id) throw new Error('--id is required')
-    const scout = run.scouts.find(s => s.id === id); if (!scout) throw new Error(`Scout not found: ${id}`)
+    const scout = run.scouts.find(s => s.id === id); if (!scout) throw new Error(`Worker not found: ${id}`)
     const status = cmd === 'scout-complete' ? 'done' : cmd === 'scout-fail' ? 'failed' : requireStatus(args.status || scout.status)
     scout.status = status; scout.lastSeenAt = now(); scout.progress = Number(args.progress ?? (status === 'done' ? 100 : scout.progress ?? 0))
     if (args.summary) scout.summary = args.summary
     if (args.awaiting !== undefined) scout.awaiting = args.awaiting || null
     if (status === 'done' || status === 'failed' || status === 'canceled') scout.completedAt = now()
-    run.events.push(event(status === 'failed' ? 'error' : 'state', args.message || `Scout ${status}: ${scout.label}`, id, status === 'failed' ? 'danger' : status === 'done' ? 'success' : 'info'))
+    run.events.push(event(status === 'failed' ? 'error' : 'state', args.message || `Worker ${status}: ${scout.label}`, id, status === 'failed' ? 'danger' : status === 'done' ? 'success' : 'info'))
     return { run: saveRun(run) }
   }
   if (cmd === 'event') {
@@ -141,7 +143,7 @@ export function handle(argv) {
   }
   if (cmd === 'complete') {
     const unfinished = run.scouts.filter((s) => !['done','failed','canceled'].includes(s.status))
-    if (unfinished.length && !args.force) throw new Error(`Cannot complete run with unfinished scouts: ${unfinished.map((s) => s.id).join(', ')}. Use --force to override.`)
+    if (unfinished.length && !args.force) throw new Error(`Cannot complete run with unfinished workers: ${unfinished.map((s) => s.id).join(', ')}. Use --force to override.`)
     run.status = args.status ? requireStatus(args.status) : 'done'
     run.finalized = true
     run.completedAt = now()

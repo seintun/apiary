@@ -3,11 +3,16 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 export const APIARY_MODEL_ROLES = new Set([
-  'cheapScout',
-  'balancedScout',
+  'cheapWorker',
+  'balancedWorker',
   'strongJudge',
   'reviewer',
   'fallbackSafe',
+])
+
+const LEGACY_ROLE_ALIASES = new Map([
+  ['cheapScout', 'cheapWorker'],
+  ['balancedScout', 'balancedWorker'],
 ])
 
 const DEFAULT_ROLE_POLICY = Object.freeze({
@@ -19,7 +24,8 @@ const DEFAULT_ROLE_POLICY = Object.freeze({
 const OMIT_MODEL_VALUES = new Set(['', 'auto', 'default', 'host-default', 'runtime-default', 'session-default'])
 
 export function normalizeRole(role) {
-  return APIARY_MODEL_ROLES.has(role) ? role : 'fallbackSafe'
+  const canonical = LEGACY_ROLE_ALIASES.get(role) || role
+  return APIARY_MODEL_ROLES.has(canonical) ? canonical : 'fallbackSafe'
 }
 
 export function normalizePolicy(rawPolicy = {}) {
@@ -44,7 +50,8 @@ export function firstExplicitPreference(prefer) {
 
 export function resolveApiaryModel(config = {}, role = 'fallbackSafe') {
   const safeRole = normalizeRole(role)
-  const roleConfig = config?.apiary?.models?.[safeRole] ?? config?.models?.[safeRole] ?? {}
+  const legacyRole = safeRole === 'cheapWorker' ? 'cheapScout' : safeRole === 'balancedWorker' ? 'balancedScout' : safeRole
+  const roleConfig = config?.apiary?.models?.[safeRole] ?? config?.apiary?.models?.[legacyRole] ?? config?.models?.[safeRole] ?? config?.models?.[legacyRole] ?? {}
   const policy = normalizePolicy(roleConfig)
   const model = firstExplicitPreference(policy.prefer)
 

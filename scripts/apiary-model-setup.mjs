@@ -14,8 +14,8 @@ async function ask(question, fallback) {
 const optimize = (await ask('Optimize Apiary model roles? y/N', 'N')).toLowerCase().startsWith('y')
 const models = {}
 
-for (const role of ['cheapScout', 'balancedScout', 'strongJudge', 'reviewer']) {
-  const fallback = optimize ? (role.includes('Scout') ? 'auto' : 'default') : 'default'
+for (const role of ['cheapWorker', 'balancedWorker', 'strongJudge', 'reviewer']) {
+  const fallback = optimize ? (role.includes('Worker') ? 'auto' : 'default') : 'default'
   const prefer = await ask(`${role} preference (auto/default/model-name)`, fallback)
   models[role] = {
     prefer,
