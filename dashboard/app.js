@@ -24,6 +24,11 @@ function scoutEvents(scout){ return (currentRun?.events||[]).filter(e=>e.scoutId
 function displayWorkerLabel(worker){
   return String(worker?.label || worker?.id || 'Worker').replace(/\s+worker$/i, '')
 }
+
+function shortModel(worker){
+  const model=worker?.resolvedModel||worker?.model||'runtime-default'
+  return String(model).replace(/^openai-codex\//,'').replace(/^github-copilot\//,'').replace(/^vercel-ai-gateway\//,'').replace(/^openrouter\//,'')
+}
 function displayWorkerRole(worker){
   return String(worker?.role || 'worker').replace(/Worker$/i, '') || 'worker'
 }
@@ -53,6 +58,8 @@ function renderHealthCards(sum){
   }
   const label={all:'All workers',running:'Gathering workers',waiting:'Waiting workers',blocked:'Blocked workers',done:'Finished workers'}[healthFilter]||'Workers'
   $('healthFilterLabel').textContent=label
+  $('healthCol2').textContent=healthFilter==='all' ? 'State' : 'Model'
+  $('healthCol3').textContent=healthFilter==='all' ? 'Seen' : 'Time'
 }
 function renderHealthWorkers(scouts){
   const tbody=$('healthWorkers'); clear(tbody)
@@ -67,9 +74,10 @@ function renderHealthWorkers(scouts){
     tr.onkeydown=(event)=>{ if(event.key==='Enter'||event.key===' '){ event.preventDefault(); tr.click() } }
     const name=document.createElement('td')
     name.append(textEl('span', workerIcon(scout), 'health-icon'), document.createTextNode(` ${displayWorkerLabel(scout)}`))
-    const state=textEl('td', labels[status]||status)
-    const seen=textEl('td', age(scout.lastSeenAt))
-    tr.append(name,state,seen)
+    const middle=textEl('td', healthFilter==='all' ? (labels[status]||status) : shortModel(scout))
+    if(healthFilter!=='all') middle.className='model-cell'
+    const last=textEl('td', healthFilter==='all' ? age(scout.lastSeenAt) : duration(scout.startedAt, scout.completedAt))
+    tr.append(name,middle,last)
     tbody.appendChild(tr)
   }
   if(!shown.length){
