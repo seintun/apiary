@@ -6,3 +6,6 @@
 # Local run ledgers
 runs/*.json
 !runs/.gitkeep
+
+# Local server logs
+.logs/
