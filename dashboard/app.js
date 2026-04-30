@@ -61,6 +61,49 @@ function renderHealthCards(sum){
   $('healthCol2').textContent=healthFilter==='all' ? 'State' : 'Model'
   $('healthCol3').textContent=healthFilter==='all' ? 'Seen' : 'Time'
 }
+
+function appendInlineDetails(tbody, scout, status){
+  const detail=document.createElement('tr')
+  detail.className='inline-detail-row'
+  const td=document.createElement('td')
+  td.colSpan=3
+  const box=document.createElement('div')
+  box.className='inline-detail'
+  const facts=document.createElement('div')
+  facts.className='inline-facts'
+  const items=[
+    ['State', labels[status]||status],
+    ['Role', displayWorkerRole(scout)],
+    ['Model', `${scout.modelRole||'default'} → ${scout.resolvedModel||scout.model||'runtime-default (unresolved)'}`],
+    ['Seen', age(scout.lastSeenAt)],
+    ['Time', duration(scout.startedAt, scout.completedAt)],
+    ['Awaiting', scout.awaiting||'—'],
+  ]
+  for(const [label,value] of items){
+    const item=document.createElement('div')
+    item.className='inline-fact'
+    item.append(textEl('span', label), textEl('strong', value))
+    facts.appendChild(item)
+  }
+  const summary=document.createElement('p')
+  summary.className='inline-summary'
+  summary.textContent=scout.summary||'No summary yet.'
+  box.append(facts, summary)
+  const ev=scoutEvents(scout)
+  if(ev.length){
+    const list=document.createElement('ol')
+    list.className='inline-events'
+    for(const evt of ev.slice(0,3)){
+      const li=document.createElement('li')
+      li.append(textEl('strong', evt.severity||'info'), document.createTextNode(` · ${age(evt.ts)} · ${evt.message||''}`))
+      list.appendChild(li)
+    }
+    box.appendChild(list)
+  }
+  td.appendChild(box)
+  detail.appendChild(td)
+  tbody.appendChild(detail)
+}
 function renderHealthWorkers(scouts){
   const tbody=$('healthWorkers'); clear(tbody)
   const shown=visibleWorkers(scouts)
@@ -70,7 +113,7 @@ function renderHealthWorkers(scouts){
     tr.className=`${statusClass(status)}${scout.id===selectedId?' selected':''}`
     tr.tabIndex=0
     tr.setAttribute('role','button')
-    tr.onclick=()=>{ selectedId=scout.id; render() }
+    tr.onclick=()=>{ selectedId = selectedId===scout.id ? null : scout.id; render() }
     tr.onkeydown=(event)=>{ if(event.key==='Enter'||event.key===' '){ event.preventDefault(); tr.click() } }
     const name=document.createElement('td')
     name.append(textEl('span', workerIcon(scout), 'health-icon'), document.createTextNode(` ${displayWorkerLabel(scout)}`))
@@ -79,6 +122,7 @@ function renderHealthWorkers(scouts){
     const last=textEl('td', healthFilter==='all' ? age(scout.lastSeenAt) : duration(scout.startedAt, scout.completedAt))
     tr.append(name,middle,last)
     tbody.appendChild(tr)
+    if(scout.id===selectedId) appendInlineDetails(tbody, scout, status)
   }
   if(!shown.length){
     const tr=document.createElement('tr'); const td=textEl('td', scouts.length ? 'No workers in this state' : 'No workers yet'); td.colSpan=3; tr.appendChild(td); tbody.appendChild(tr)
