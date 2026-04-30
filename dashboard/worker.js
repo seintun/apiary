@@ -8,6 +8,7 @@ function clear(el) { if(el) while(el.firstChild) el.removeChild(el.firstChild) }
 
 function age(iso){ if(!iso) return '—'; const s=Math.max(0,Math.round((Date.now()-new Date(iso))/1000)); if(s<60)return `${s}s ago`; const m=Math.round(s/60); return m<60?`${m}m ago`:`${Math.round(m/60)}h ago` }
 function duration(start,end){ if(!start) return '—'; const ms=Math.max(0,new Date(end||Date.now())-new Date(start)); const s=Math.round(ms/1000); if(s<60)return `${s}s`; const m=Math.floor(s/60), r=s%60; if(m<60)return r?`${m}m ${r}s`:`${m}m`; const h=Math.floor(m/60); return `${h}h ${m%60}m` }
+function eventStamp(iso){ return iso ? new Date(iso).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '—' }
 function statusLabel(status){ return ({queued:'Queued',running:'Gathering',waiting_tool:'Waiting on tool',waiting_user:'Waiting for you',blocked:'Blocked',retrying:'Trying again',done:'Finished',failed:'Failed',canceled:'Canceled',stale:'Quiet too long'})[status] || status || 'Queued' }
 function workerIcon(worker){ const key=`${worker?.role||''} ${worker?.label||''} ${worker?.id||''}`; const patterns=[[/queen|main|coordinator|dexter/i,'👑'],[/ux|design/i,'🎨🐝'],[/risk|review|security|devil|advers/i,'🛡️🐝'],[/doc|write/i,'📚🐝'],[/tech|code|impl|engineer/i,'🛠️🐝'],[/research|evidence/i,'🔎🐝'],[/adapt|map/i,'🧭🐝'],[/safety/i,'🦺🐝'],[/reliab|test|verify/i,'✅🐝']]; return patterns.find(([re])=>re.test(key))?.[1] || '🐝' }
 
