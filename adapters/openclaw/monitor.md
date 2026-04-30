@@ -48,11 +48,11 @@ node scripts/apiary-monitor.mjs
 node scripts/apiary-monitor.mjs --watch --interval 3
 ```
 
-Visual dashboard:
+Visual dashboard, **Honey ComBoard**:
 
 ```bash
 node scripts/apiary-serve-monitor.mjs 8765
 open http://localhost:8765
 ```
 
-The dashboard is read-only, privacy-oriented, and uses the same ledger JSON as the terminal monitor.
+Honey ComBoard is read-only, privacy-oriented, mobile-friendly, and uses the same ledger JSON as the terminal monitor. The header controls are intentionally stateful: **Privacy** is display/glance privacy only, **Focus** disables motion and shows an on-state, and **Refresh** reloads the ledger with immediate tap feedback.

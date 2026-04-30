@@ -21,7 +21,7 @@ http.createServer((req,res)=>{
   if(!full.startsWith(root)) { res.writeHead(403); return res.end('forbidden') }
   fs.readFile(full,(err,buf)=>{
     if(err){ res.writeHead(404, {'content-type':'text/plain; charset=utf-8'}); return res.end('not found') }
-    res.writeHead(200,{ 'content-type': types[path.extname(full)] || 'application/octet-stream', 'x-content-type-options':'nosniff', 'referrer-policy':'no-referrer' })
+    res.writeHead(200,{ 'content-type': types[path.extname(full)] || 'application/octet-stream', 'x-content-type-options':'nosniff', 'referrer-policy':'no-referrer', 'cache-control':'no-store, max-age=0' })
     res.end(buf)
   })
-}).listen(port,'127.0.0.1',()=>console.log(`Apiary Hive Board: http://127.0.0.1:${port}`))
+}).listen(port,'127.0.0.1',()=>console.log(`Honey ComBoard: http://127.0.0.1:${port}`))

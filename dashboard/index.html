@@ -3,16 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Apiary Hive Board</title>
+  <title>Honey ComBoard</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <main class="shell">
     <header class="hero">
       <div>
-        <p class="eyebrow">Apiary Monitor</p>
-        <h1>Hive Board</h1>
-        <p class="lede"><span class="lede-full">A calm, friendly view of 🐝, blockers, and decisions.</span><span class="lede-short">🐝, blockers, decisions.</span><button class="tip inline-tip" type="button" aria-label="What is the Hive Board?" data-tip="The Hive Board shows one Apiary run: workers are worker agents, statuses show what they are doing, and signals show recent changes. Privacy mode is display-only; raw local ledger JSON remains readable to anyone with dashboard access.">i</button></p>
+        <h1>Honey ComBoard</h1>
+        <p class="lede"><span class="lede-full">A sweet command board for workers, blockers, decisions, and fresh hive signals.</span><span class="lede-short">Workers, blockers, decisions.</span><button class="tip inline-tip" type="button" aria-label="What is Honey ComBoard?" data-tip="Honey ComBoard shows one Apiary run: workers are agent bees, states show what they are doing, and signals show recent changes. Privacy mode is display-only; raw local ledger JSON remains readable to anyone with dashboard access.">i</button></p>
       </div>
       <div class="actions">
         <button id="privacyToggle" class="ghost" type="button" data-tip="Privacy mode is for screen sharing and glance privacy only. It does not encrypt or hide the raw local ledger JSON from someone who already has dashboard access.">Privacy: on</button>
@@ -22,7 +21,7 @@
     </header>
 
     <section class="health" aria-label="Hive health">
-      <div class="section-help">Hive health</div>
+      <div class="section-help">Live hive health</div>
       <button class="health-card" type="button" data-filter="running"><span id="countRunning">0</span><small>Gathering</small></button>
       <button class="health-card" type="button" data-filter="waiting"><span id="countWaiting">0</span><small>Waiting</small></button>
       <button class="health-card" type="button" data-filter="blocked"><span id="countBlocked">0</span><small>Blocked</small></button>
@@ -42,7 +41,7 @@
 
     <section class="workspace single">
       <aside class="details" aria-live="polite">
-        <p class="eyebrow">Worker 🐝 <button class="tip" type="button" aria-label="Selected worker help" data-tip="This panel explains the selected worker: its role, model route, freshness, summary, and whether it needs input.">i</button></p>
+        <p class="eyebrow">Worker detail 🐝 <button class="tip" type="button" aria-label="Selected worker help" data-tip="This panel explains the selected worker: its role, model route, freshness, summary, and whether it needs input.">i</button></p>
         <h2 id="detailTitle">Pick a cell</h2>
         <p id="detailStatus" class="badge">No worker selected</p>
         <dl>
