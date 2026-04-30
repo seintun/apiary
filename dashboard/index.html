@@ -11,14 +11,27 @@
     <header class="hero">
       <div>
         <h1>Honey ComBoard</h1>
-        <p class="lede"><span class="lede-full">A sweet command board for workers, blockers, decisions, and fresh hive signals.</span><span class="lede-short">Workers, blockers, decisions.</span><button class="tip inline-tip" type="button" aria-label="What is Honey ComBoard?" data-tip="Honey ComBoard shows one Apiary run: workers are agent bees, states show what they are doing, and signals show recent changes. Privacy mode is display-only; raw local ledger JSON remains readable to anyone with dashboard access.">i</button></p>
+        <p class="lede"><span class="lede-full">Track Apiary tasks, assigned workers, decisions, and what happened next.</span><span class="lede-short">Tasks, workers, decisions.</span><button class="tip inline-tip" type="button" aria-label="What is Honey ComBoard?" data-tip="Honey ComBoard shows Apiary work: task trails, worker status, decisions, dispatches, and recent timeline events from the local run ledger.">i</button></p>
       </div>
-      <div class="actions">
-        <button id="privacyToggle" class="ghost" type="button" data-tip="Privacy mode is for screen sharing and glance privacy only. It does not encrypt or hide the raw local ledger JSON from someone who already has dashboard access.">Privacy: on</button>
-        <button id="motionToggle" class="ghost" type="button">Focus mode</button>
-        <button id="refreshBtn" type="button">Refresh</button>
+      <div class="actions compact-actions">
+        <button id="refreshBtn" class="icon-refresh" type="button" aria-label="Refresh dashboard" title="Refresh dashboard"><span class="refresh-icon">↻</span><span class="refresh-label">Refresh</span></button>
       </div>
     </header>
+
+    <section class="history-strip" aria-label="Task trail history">
+      <div class="history-head">
+        <div>
+          <p class="eyebrow">Task trails</p>
+          <h2>Recent work</h2>
+        </div>
+        <div class="history-tabs" role="tablist" aria-label="History filter">
+          <button type="button" class="history-tab selected" data-history-filter="all" aria-pressed="true">All</button>
+          <button type="button" class="history-tab" data-history-filter="active" aria-pressed="false">Active</button>
+          <button type="button" class="history-tab" data-history-filter="done" aria-pressed="false">Done</button>
+        </div>
+      </div>
+      <div id="runHistory" class="run-history"></div>
+    </section>
 
     <section class="health" aria-label="Hive health">
       <div class="section-help">Live hive health</div>
@@ -37,6 +50,30 @@
     <section class="statusbar" aria-label="Current run status">
       <div><strong id="runTitle">Loading hive…</strong><span id="runMeta"></span></div>
       <div id="decision" class="decision hidden"></div>
+    </section>
+
+    <section class="provenance-board" aria-label="Task provenance">
+      <article class="task-panel">
+        <div class="task-header">
+          <div>
+            <p class="eyebrow">Task provenance 👑</p>
+            <h2 id="taskTitle">Loading task…</h2>
+            <p id="taskMeta">Finding the trail…</p>
+          </div>
+          <div class="task-filters">
+            <select id="eventFilter" aria-label="Timeline event filter">
+              <option value="all">Timeline: all signals</option>
+              <option value="decision">Decisions</option>
+              <option value="dispatch">Dispatches</option>
+              <option value="log">Logs</option>
+              <option value="good">Completions</option>
+              <option value="bad">Problems</option>
+            </select>
+          </div>
+        </div>
+        <div class="chip-row" id="workerChips" aria-label="Workers who touched this task"></div>
+        <ol id="taskTimeline" class="provenance-timeline"></ol>
+      </article>
     </section>
 
     <section class="workspace single">
