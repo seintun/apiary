@@ -137,7 +137,7 @@ function scoutEvents(scout){ return (currentRun?.events||[]).filter(e=>e.scoutId
 function renderHealthWorkers(scouts){
   const tbody=$('healthWorkers'); clear(tbody); const shown=visibleWorkers(scouts)
   for(const scout of shown){ const status=displayStatus(scout); const tr=document.createElement('tr'); tr.className=`${statusClass(status)}${scout.id===selectedId?' selected':''}`; tr.tabIndex=0; tr.setAttribute('role','button'); tr.setAttribute('aria-expanded', scout.id===selectedId ? 'true' : 'false'); tr.setAttribute('aria-label', `${displayWorkerLabel(scout)}: ${labels[status]||status}, last seen ${age(scout.lastSeenAt)}`); tr.onclick=()=>{ selectedId = selectedId===scout.id ? null : scout.id; stableRender() }; tr.onkeydown=(event)=>{ if(event.key==='Enter'||event.key===' '){ event.preventDefault(); tr.click() } }
-    const name=document.createElement('td'); name.append(textEl('span', workerIcon(scout), 'health-icon'), document.createTextNode(` ${displayWorkerLabel(scout)}`)); const middle=textEl('td', healthFilter==='all' ? statusBadge(status) : shortModel(scout)); middle.classList.add('status-cell', `tone-${statusTone(status)}`); if(healthFilter!=='all') middle.classList.add('model-cell'); const last=textEl('td', healthFilter==='all' ? age(scout.lastSeenAt) : duration(scout.startedAt, scout.completedAt)); tr.append(name,middle,last); tbody.appendChild(tr); if(scout.id===selectedId) appendInlineDetails(tbody, scout, status) }
+    const name=document.createElement('td'); name.append(textEl('span', workerIcon(scout), 'health-icon'), document.createTextNode(` ${displayWorkerLabel(scout)}`)); const middle=document.createElement('td'); if(healthFilter==='all'){ const chip=textEl('span', statusBadge(status), `status-chip tone-${statusTone(status)}`); middle.appendChild(chip) } else { middle.textContent=shortModel(scout); middle.classList.add('model-cell') } const last=textEl('td', healthFilter==='all' ? age(scout.lastSeenAt) : duration(scout.startedAt, scout.completedAt)); tr.append(name,middle,last); tbody.appendChild(tr); if(scout.id===selectedId) appendInlineDetails(tbody, scout, status) }
   if(!shown.length){ const tr=document.createElement('tr'); const td=textEl('td', scouts.length ? 'No workers in this state' : 'No workers yet'); td.colSpan=3; tr.appendChild(td); tbody.appendChild(tr) }
 }
 function historyKind(entry){ const status=entry.status||'running'; return ['done','failed','canceled'].includes(status) ? 'done' : 'active' }
@@ -171,7 +171,8 @@ function renderTaskTimeline(task){
     if(currentDate!==lastDate){ appendDateBreak(list, currentDate); lastDate=currentDate }
     const li=document.createElement('li'); const tone=eventTone(evt.kind, evt.severity)
     li.className=`prov-event ${tone} tone-${tone}`
-    const dot=textEl('span', toneIcons[tone] || (evt.scoutId?'🐝':'👑'), 'event-dot')
+    const progressIcon = tone==='good' ? '🏆' : tone==='dispatch' ? '⚡️' : tone==='running' ? '⚡️' : tone==='decision' ? '💡' : tone==='bad' ? '⚠️' : (evt.scoutId?'🐝':'👑')
+    const dot=textEl('span', progressIcon, 'event-dot')
     const body=document.createElement('div'); body.className='event-body'
     const top=document.createElement('div'); top.className='event-top'; const kindBadge=textEl('strong', severityBadge(evt.severity, evt.kind), `event-badge tone-${tone}`); top.append(kindBadge, textEl('span', `${evt.actorName||evt.actorType||'Hive'} · ${eventStamp(evt.ts)}`))
     const summary=textEl('p', privacy && /log/.test(evt.kind) ? 'Log available — hide-details mode is on.' : cleanSummary(evt.summary || 'No summary recorded yet.'))
