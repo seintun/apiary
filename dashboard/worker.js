@@ -53,6 +53,22 @@ function renderLog(containerId, events){
 }
 
 function reportField(worker, key, fallback){ return worker.reportData?.[key] ?? fallback }
+function eventSummariesFor(worker, run){
+  return (run.events || [])
+    .filter((e)=>e.scoutId === worker.id)
+    .slice(-3)
+    .reverse()
+    .map((e)=>e.summary || e.message)
+    .filter(Boolean)
+}
+function derivedDoing(worker){
+  if(worker.awaiting) return `Needs input: ${worker.awaiting}`
+  if(worker.status === 'done') return 'Finished — no active work is pending.'
+  if(worker.status === 'failed') return 'Stopped after a failure. Check risks and log.'
+  if(worker.status === 'blocked') return 'Blocked. Check next steps and risks.'
+  if(worker.status === 'stale') return 'No recent heartbeat. Check freshness and log.'
+  return worker.summary ? 'In progress — see snapshot summary and recent log.' : 'Idle or waiting for more ledger activity.'
+}
 function deriveWorkerDetailView(worker, run, reportData, reportLoadError){
   const report = reportData && !reportData.risks?.some?.((r)=>String(r).startsWith('Full report unavailable:')) ? reportData : null
   const reportStatus = worker.reportStatus || report?.reportStatus || report?.status || (reportData?.risks?.some?.((r)=>String(r).includes('Full report unavailable')) ? 'missing' : null)
@@ -63,9 +79,9 @@ function deriveWorkerDetailView(worker, run, reportData, reportLoadError){
   return {
     title: worker.reportHeadline || report?.headline || worker.label || worker.id || 'Worker',
     summary,
-    doing: report?.doing || worker.summary || (worker.status === 'done' ? 'Work completed' : 'Idle'),
-    accomplished: report?.accomplished || (worker.status === 'done' ? [worker.summary || 'Work completed successfully.'] : []),
-    findings: report?.findings || (hasReport ? [] : [worker.summary ? `Ledger summary: ${worker.summary}` : 'No report artifact recorded.']),
+    doing: report?.doing || derivedDoing(worker),
+    accomplished: report?.accomplished || (worker.status === 'done' ? ['Completion recorded in the run ledger. No separate completed-work report was generated.'] : []),
+    findings: report?.findings || (hasReport ? [] : eventSummariesFor(worker, run)),
     artifacts: report?.artifacts || worker.artifactPaths || [],
     filesTouched: report?.filesTouched || [],
     nextSteps: report?.nextSteps || (worker.awaiting ? [worker.awaiting] : []),

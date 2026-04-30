@@ -67,8 +67,11 @@ test('files touched render as text not links', () => {
   assert.ok(workerJs.includes("renderItems('workerFiles', view.filesTouched, {links:false"), 'Files touched should be rendered as text')
 })
 
-test('done summary fallback uses ledger data', () => {
-  assert.ok(workerJs.includes("worker.status === 'done' ? [worker.summary || 'Work completed successfully.'] : []"), 'Completed work should fall back to the worker summary when done')
+test('ledger-derived fallback avoids repeating the same summary in every section', () => {
+  assert.ok(workerJs.includes('function derivedDoing(worker)'), 'Current focus should be derived separately from the summary')
+  assert.ok(workerJs.includes('Completion recorded in the run ledger'), 'Completed work should not repeat the snapshot summary verbatim')
+  assert.ok(workerJs.includes('function eventSummariesFor(worker, run)'), 'Findings should come from worker events, not a repeated ledger summary')
+  assert.ok(!workerJs.includes('Ledger summary:'), 'Findings should not duplicate the snapshot summary with a prefix')
 })
 
 test('worker page back link returns to dashboard', () => {
