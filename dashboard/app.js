@@ -14,7 +14,7 @@ const workerTypeIcons = [
 function workerIcon(worker){ const key=`${worker?.role||''} ${worker?.label||''} ${worker?.id||''}`; return workerTypeIcons.find(([re])=>re.test(key))?.[1] || '🐝' }
 const activeStatuses = new Set(['queued','running','waiting_tool','waiting_user','retrying'])
 const STALE_AFTER_MS = 5 * 60 * 1000
-let currentRun = null, selectedId = null, privacy = true
+let currentRun = null, selectedId = null, privacy = true, healthFilter = 'all'
 function age(iso){ if(!iso) return '—'; const s=Math.max(0,Math.round((Date.now()-new Date(iso))/1000)); if(s<60)return `${s}s ago`; const m=Math.round(s/60); return m<60?`${m}m ago`:`${Math.round(m/60)}h ago` }
 function duration(start,end){ if(!start) return '—'; const ms=Math.max(0,new Date(end||Date.now())-new Date(start)); const s=Math.round(ms/1000); if(s<60)return `${s}s`; const m=Math.floor(s/60), r=s%60; if(m<60)return r?`${m}m ${r}s`:`${m}m`; const h=Math.floor(m/60); return `${h}h ${m%60}m` }
 function isStale(scout){ return scout?.lastSeenAt && activeStatuses.has(scout.status) && Date.now() - new Date(scout.lastSeenAt).getTime() > STALE_AFTER_MS }
@@ -31,12 +31,33 @@ function textEl(tag, text, className){ const el=document.createElement(tag); if(
 function clear(el){ while(el.firstChild) el.removeChild(el.firstChild) }
 async function loadRun(){ try{ const reg=await fetch('../runs/registry.json',{cache:'no-store'}).then(r=>{ if(!r.ok) throw new Error('registry'); return r.json() }); const entry=reg.runs?.[0]; if(!entry) throw new Error('empty registry'); currentRun=await fetch(`../${entry.path}`,{cache:'no-store'}).then(r=>{ if(!r.ok) throw new Error('run'); return r.json() }) }catch{ currentRun=window.APIARY_SAMPLE_RUN } privacy = currentRun.privacyMode !== false; render() }
 function statusClass(s){ return ['waiting_tool','waiting_user'].includes(s)?s:s||'queued' }
-function summaryWithStale(run){ const scouts=run.scouts||[]; const summary={...(run.summary||{})}; summary.stale=scouts.filter(isStale).length; if(summary.stale){ summary.running=Math.max(0,(summary.running||0)-summary.stale) } return summary }
-function render(){ const run=currentRun; if(!run) return; const sum=summaryWithStale(run); $('countRunning').textContent=sum.running||0; $('countWaiting').textContent=sum.waiting||0; $('countBlocked').textContent=sum.blocked||0; $('countDone').textContent=sum.done||0; $('runTitle').textContent=run.title; $('runMeta').textContent=`${labels[run.status]||run.status} · updated ${age(run.updatedAt)}`; $('privacyToggle').textContent=`Privacy: ${privacy?'on':'off'}`; $('decision').classList.toggle('hidden',!run.decisionAwaiting); $('decision').textContent=run.decisionAwaiting?`Waiting for you: ${run.decisionAwaiting}`:''; renderHealthWorkers(run.scouts||[]); renderHive(run.scouts||[]); renderEvents(run.events||[]); renderDetails((run.scouts||[]).find(s=>s.id===selectedId)) ; $('lastRefresh').textContent=`Refreshed ${new Date().toLocaleTimeString()}` }
+function summaryWithStale(run){ const scouts=run.scouts||[]; return { total:scouts.length, running:scouts.filter(s=>displayStatus(s)==='running'||displayStatus(s)==='queued'||displayStatus(s)==='retrying').length, waiting:scouts.filter(s=>displayStatus(s)==='waiting_tool'||displayStatus(s)==='waiting_user').length, blocked:scouts.filter(s=>displayStatus(s)==='blocked'||displayStatus(s)==='failed').length, done:scouts.filter(s=>displayStatus(s)==='done'||displayStatus(s)==='canceled').length, stale:scouts.filter(isStale).length } }
+function render(){ const run=currentRun; if(!run) return; const workers=run.scouts||[]; const sum=summaryWithStale(run); $('countRunning').textContent=sum.running||0; $('countWaiting').textContent=sum.waiting||0; $('countBlocked').textContent=sum.blocked||0; $('countDone').textContent=sum.done||0; renderHealthCards(sum); $('runTitle').textContent=run.title; $('runMeta').textContent=`${labels[run.status]||run.status} · updated ${age(run.updatedAt)}`; $('privacyToggle').textContent=`Privacy: ${privacy?'on':'off'}`; $('decision').classList.toggle('hidden',!run.decisionAwaiting); $('decision').textContent=run.decisionAwaiting?`Waiting for you: ${run.decisionAwaiting}`:''; renderHealthWorkers(workers); renderEvents(run.events||[]); renderDetails(workers.find(s=>s.id===selectedId)) ; $('lastRefresh').textContent=`Refreshed ${new Date().toLocaleTimeString()}` }
 
+
+function filterKind(worker){
+  const status=displayStatus(worker)
+  if(status==='waiting_tool'||status==='waiting_user') return 'waiting'
+  if(status==='blocked'||status==='failed') return 'blocked'
+  if(status==='done'||status==='canceled') return 'done'
+  return 'running'
+}
+function visibleWorkers(workers){ return healthFilter==='all' ? workers : workers.filter(w=>filterKind(w)===healthFilter) }
+function renderHealthCards(sum){
+  for(const card of document.querySelectorAll('.health-card')){
+    const filter=card.dataset.filter
+    const count=sum[filter]||0
+    card.classList.toggle('selected', healthFilter===filter)
+    card.disabled=count===0
+    card.setAttribute('aria-pressed', healthFilter===filter ? 'true':'false')
+  }
+  const label={all:'All workers',running:'Gathering workers',waiting:'Waiting workers',blocked:'Blocked workers',done:'Finished workers'}[healthFilter]||'Workers'
+  $('healthFilterLabel').textContent=label
+}
 function renderHealthWorkers(scouts){
   const tbody=$('healthWorkers'); clear(tbody)
-  for(const scout of scouts){
+  const shown=visibleWorkers(scouts)
+  for(const scout of shown){
     const status=displayStatus(scout)
     const tr=document.createElement('tr')
     tr.className=`${statusClass(status)}${scout.id===selectedId?' selected':''}`
@@ -51,8 +72,8 @@ function renderHealthWorkers(scouts){
     tr.append(name,state,seen)
     tbody.appendChild(tr)
   }
-  if(!scouts.length){
-    const tr=document.createElement('tr'); const td=textEl('td','No workers yet'); td.colSpan=3; tr.appendChild(td); tbody.appendChild(tr)
+  if(!shown.length){
+    const tr=document.createElement('tr'); const td=textEl('td', scouts.length ? 'No workers in this state' : 'No workers yet'); td.colSpan=3; tr.appendChild(td); tbody.appendChild(tr)
   }
 }
 function renderHive(scouts){ const hive=$('hive'); clear(hive); for(const scout of scouts){ const status=displayStatus(scout); const btn=document.createElement('button'); btn.className=`cell ${statusClass(status)}${scout.id===selectedId?' selected':''}`; btn.type='button'; const hex=document.createElement('span'); hex.className='hex'; const content=document.createElement('span'); content.className='cell-content'; content.append(textEl('span', status === 'done' ? '🍯' : workerIcon(scout), 'bee'), textEl('strong', displayWorkerLabel(scout))); const small=textEl('small', `${labels[status]||status} · ${scout.progress||0}%`); content.appendChild(small); btn.append(hex, content); btn.onclick=()=>{selectedId=scout.id; render()}; hive.appendChild(btn) } }
@@ -63,3 +84,5 @@ function hideHelp(){ $('helpBubble').classList.add('hidden'); $('helpBubble').te
 function showHelp(text){ const bubble=$('helpBubble'); bubble.textContent=text; bubble.classList.remove('hidden'); clearTimeout(window.__helpTimer); window.__helpTimer=setTimeout(hideHelp,5500) }
 document.addEventListener('click',(event)=>{ const trigger=event.target.closest('[data-tip]'); if(trigger){ event.preventDefault(); event.stopPropagation(); showHelp(trigger.dataset.tip) } else if(!event.target.closest('#helpBubble')) hideHelp() })
 document.addEventListener('keydown',(event)=>{ if(event.key==='Escape') hideHelp() })
+
+for(const card of document.querySelectorAll('.health-card')) card.onclick=()=>{ if(card.disabled) return; healthFilter = healthFilter===card.dataset.filter ? 'all' : card.dataset.filter; selectedId=null; render() }

@@ -23,13 +23,13 @@
 
     <section class="health" aria-label="Hive health">
       <div class="section-help">Hive health</div>
-      <article><span id="countRunning">0</span><small>Gathering</small></article>
-      <article><span id="countWaiting">0</span><small>Waiting</small></article>
-      <article><span id="countBlocked">0</span><small>Blocked</small></article>
-      <article><span id="countDone">0</span><small>Finished</small></article>
+      <button class="health-card" type="button" data-filter="running"><span id="countRunning">0</span><small>Gathering</small></button>
+      <button class="health-card" type="button" data-filter="waiting"><span id="countWaiting">0</span><small>Waiting</small></button>
+      <button class="health-card" type="button" data-filter="blocked"><span id="countBlocked">0</span><small>Blocked</small></button>
+      <button class="health-card" type="button" data-filter="done"><span id="countDone">0</span><small>Finished</small></button>
       <div class="health-table-wrap">
         <table class="health-table">
-          <thead><tr><th>Worker</th><th>State</th><th>Seen</th></tr></thead>
+          <thead><tr><th id="healthFilterLabel">All workers</th><th>State</th><th>Seen</th></tr></thead>
           <tbody id="healthWorkers"></tbody>
         </table>
       </div>
@@ -40,11 +40,7 @@
       <div id="decision" class="decision hidden"></div>
     </section>
 
-    <section class="workspace">
-      <div class="hive-panel">
-        <div class="section-title compact"><h2>Workers 🐝 <button class="tip" type="button" aria-label="Worker cells help" data-tip="Each honeycomb cell is a worker/subagent. Tap a cell to see role, model route, last update, summary, and anything awaiting you.">i</button></h2></div>
-        <div id="hive" class="hive" aria-label="Worker honeycomb"></div>
-      </div>
+    <section class="workspace single">
       <aside class="details" aria-live="polite">
         <p class="eyebrow">Worker 🐝 <button class="tip" type="button" aria-label="Selected worker help" data-tip="This panel explains the selected worker: its role, model route, freshness, summary, and whether it needs input.">i</button></p>
         <h2 id="detailTitle">Pick a cell</h2>
