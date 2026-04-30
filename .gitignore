@@ -2,3 +2,7 @@
 .apiary.local.yaml
 .apiary.local.yml
 .model-health.json
+
+# Local run ledgers
+runs/*.json
+!runs/.gitkeep
