@@ -446,3 +446,43 @@ If avoiding `jq`, the script should also print a plain `runId` mode.
 - Should summaries be redacted by default? Recommendation: yes for dashboard overview; full details optional.
 - Should dashboard expose action buttons? Recommendation: no for MVP.
 - Should dashboard live inside public Apiary repo? Recommendation: yes, as a static optional adapter/viewer.
+
+## Hardening follow-up completed Apr 29, 2026
+
+After the first mobile/Tailscale trial and Apiary audit, the monitor was hardened in three phases.
+
+### Safety fixes
+
+- Dashboard rendering now avoids `innerHTML` for ledger-controlled values and uses DOM/text rendering instead.
+- Static server is allowlisted to only serve:
+  - `/`
+  - `/dashboard/*`
+  - `/runs/registry.json`
+  - `/runs/run-*.json`
+- Static server binds to `127.0.0.1` and is intended to be exposed through Tailscale Serve when needed.
+- Server sends lightweight safety headers: `x-content-type-options: nosniff` and `referrer-policy: no-referrer`.
+- Privacy mode is explicitly documented as display/glance privacy, not access control. Raw local ledger JSON remains readable to anyone with dashboard access.
+
+### Reliability fixes
+
+- `apiary-run complete` refuses to complete a run with unfinished scouts unless `--force` is supplied.
+- Dashboard derives stale display for active scouts when `lastSeenAt` is older than the client-side threshold.
+- Malformed JSON handling is more defensive in the ledger/monitor path.
+- Tests cover completion guardrails and malformed JSON fallback.
+
+### UX fixes
+
+- Mobile copy now uses shorter wording.
+- User-facing dashboard language favors “worker” over internal “scout” where helpful.
+- Help affordances were simplified to avoid clutter.
+- Mobile detail panels were compressed with fact-chip style layout.
+
+### Verification
+
+Current unit suite covers model routing, run ledger basics, CLI flow, monitor formatting, dashboard safety checks, and reliability guardrails.
+
+```bash
+node --test tests/unit/*.test.mjs
+```
+
+Expected result after hardening: 18 passing tests.

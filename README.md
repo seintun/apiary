@@ -40,6 +40,20 @@ Use Apiary when you want to:
 
 Apiary is intentionally small: it is a protocol, not a platform. You can use it with AI agents, normal LLM chats, human teammates, GitHub issues, docs, or any combination of those.
 
+
+## Optional monitor: Hive Board
+
+Apiary includes a lightweight local monitor for swarm/scout runs:
+
+- terminal view: `node scripts/apiary-monitor.mjs`
+- visual dashboard: `node scripts/apiary-serve-monitor.mjs 8765`
+
+The monitor is intentionally no-dependency and file-backed. Apiary writes normalized run ledger JSON under `runs/`; terminal and visual views read that ledger. The dashboard is read-only and can be exposed through Tailscale Serve for trusted tailnet use.
+
+Security/ privacy note: dashboard privacy mode is display/glance privacy only. It does not encrypt or access-control raw ledger JSON. Treat the monitor as a local/trusted-tailnet tool.
+
+See [protocol/monitor-implementation-plan.md](protocol/monitor-implementation-plan.md) and [adapters/openclaw/monitor.md](adapters/openclaw/monitor.md).
+
 ## How it works
 
 Apiary separates a complex decision into clear roles and artifacts:
