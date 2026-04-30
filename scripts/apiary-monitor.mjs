@@ -9,7 +9,7 @@ const REGISTRY_PATH = path.join(RUNS_DIR, 'registry.json')
 const ICONS = { queued:'○', running:'✦', waiting_tool:'◔', waiting_user:'?', blocked:'!', retrying:'↻', done:'✓', failed:'✕', canceled:'−', stale:'…' }
 const LABELS = { queued:'Queued', running:'Gathering', waiting_tool:'Waiting/tool', waiting_user:'Waiting/you', blocked:'Blocked', retrying:'Trying again', done:'Finished', failed:'Failed', canceled:'Canceled', stale:'Quiet too long' }
 function parseArgs(argv) { const out={_:[]}; for(let i=0;i<argv.length;i++){const a=argv[i]; if(a.startsWith('--')){const k=a.slice(2); const n=argv[i+1]; if(!n||n.startsWith('--')) out[k]=true; else out[k]=argv[++i]} else out._.push(a)} return out }
-function readJson(file) { return JSON.parse(fs.readFileSync(file, 'utf8')) }
+function readJson(file) { try { return JSON.parse(fs.readFileSync(file, 'utf8')) } catch (error) { throw new Error(`Cannot read ${file}: ${error.message}`) } }
 function relAge(iso) { const sec=Math.max(0, Math.round((Date.now()-new Date(iso).getTime())/1000)); if(sec<60) return `${sec}s`; const min=Math.round(sec/60); if(min<60) return `${min}m`; return `${Math.round(min/60)}h` }
 function pct(n) { return `${Math.max(0, Math.min(100, Number(n)||0)).toString().padStart(3)}%` }
 function line(char='─', width=88){ return char.repeat(width) }

@@ -32,9 +32,13 @@ function atomicWrite(file, data) {
   fs.writeFileSync(tmp, `${JSON.stringify(data, null, 2)}\n`)
   fs.renameSync(tmp, file)
 }
-function readJson(file, fallback) {
+export function readJson(file, fallback) {
   if (!fs.existsSync(file)) return fallback
-  return JSON.parse(fs.readFileSync(file, 'utf8'))
+  try { return JSON.parse(fs.readFileSync(file, 'utf8')) }
+  catch (error) {
+    if (fallback !== undefined) return fallback
+    throw new Error(`Invalid JSON in ${file}: ${error.message}`)
+  }
 }
 function runPath(runId) { return path.join(RUNS_DIR, `${runId}.json`) }
 function registryPathFor(runId) { return `runs/${runId}.json` }
@@ -52,7 +56,8 @@ export function summarize(scouts = []) {
   return summary
 }
 function deriveRunStatus(run) {
-  if (['failed','canceled','done','blocked','waiting_user'].includes(run.status)) return run.status
+  if (run.finalized === true) return run.status
+  if (['failed','canceled','blocked','waiting_user'].includes(run.status)) return run.status
   const scouts = run.scouts || []
   if (scouts.some(s => s.status === 'failed')) return 'failed'
   if (scouts.some(s => s.status === 'blocked')) return 'blocked'
@@ -135,7 +140,10 @@ export function handle(argv) {
     return { run: saveRun(run) }
   }
   if (cmd === 'complete') {
+    const unfinished = run.scouts.filter((s) => !['done','failed','canceled'].includes(s.status))
+    if (unfinished.length && !args.force) throw new Error(`Cannot complete run with unfinished scouts: ${unfinished.map((s) => s.id).join(', ')}. Use --force to override.`)
     run.status = args.status ? requireStatus(args.status) : 'done'
+    run.finalized = true
     run.completedAt = now()
     run.events.push(event('state', args.message || `Run ${run.status}`, null, run.status === 'done' ? 'success' : 'info'))
     return { run: saveRun(run) }
