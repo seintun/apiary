@@ -25,4 +25,11 @@ test('apiary-run CLI creates monitor-readable ledger', () => {
   assert.match(monitor.stdout, /Finished/)
 
   fs.rmSync(path.join(repo, 'runs', `${runId}.json`), { force: true })
+  const registryPath = path.join(repo, 'runs', 'registry.json')
+  if (fs.existsSync(registryPath)) {
+    const registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'))
+    registry.runs = (registry.runs || []).filter((run) => run.runId !== runId)
+    registry.latestRunId = registry.runs[0]?.runId || null
+    fs.writeFileSync(registryPath, `${JSON.stringify(registry, null, 2)}\n`)
+  }
 })

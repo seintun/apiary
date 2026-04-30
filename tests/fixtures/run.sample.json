@@ -20,5 +20,5 @@
     { "id": "evt-2", "ts": "2026-04-30T01:52:00.000Z", "type": "state", "severity": "success", "scoutId": "ux", "message": "UX scout finished." },
     { "id": "evt-3", "ts": "2026-04-30T01:54:00.000Z", "type": "decision", "severity": "warning", "scoutId": "review", "message": "Reviewer is waiting for a privacy mode decision." }
   ],
-  "decisionAwaiting": "Confirm privacy mode default."
+  "decisionAwaiting": null
 }

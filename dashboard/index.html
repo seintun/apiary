@@ -12,17 +12,17 @@
       <div>
         <p class="eyebrow">Apiary Monitor</p>
         <h1>Hive Board</h1>
-        <p class="lede">A calm, friendly view of scouts, blockers, and decisions. <button class="tip" type="button" aria-label="What is the Hive Board?" data-tip="The Hive Board shows one Apiary run: scouts are worker agents, statuses show what they are doing, and signals show recent changes.">?</button></p>
+        <p class="lede">A calm, friendly view of scouts, blockers, and decisions. <button class="tip" type="button" aria-label="What is the Hive Board?" data-tip="The Hive Board shows one Apiary run: scouts are worker agents, statuses show what they are doing, and signals show recent changes.">i</button></p>
       </div>
       <div class="actions">
-        <button id="privacyToggle" class="ghost" type="button">Privacy: on</button><button class="tip" type="button" aria-label="Privacy mode help" data-tip="Privacy mode keeps overview text safe for screen sharing. Select a scout to reveal its concise summary.">?</button>
+        <button id="privacyToggle" class="ghost" type="button" data-tip="Privacy mode keeps overview text safe for screen sharing. Select a scout to reveal its concise summary.">Privacy: on</button>
         <button id="motionToggle" class="ghost" type="button">Focus mode</button>
         <button id="refreshBtn" type="button">Refresh</button>
       </div>
     </header>
 
     <section class="health" aria-label="Hive health">
-      <div class="section-help">Hive health <button class="tip" type="button" aria-label="Hive health help" data-tip="Quick counts for this run: Gathering means active scouts, Waiting means a tool or you are needed, Blocked means stuck, Finished means completed scouts.">?</button></div>
+      <div class="section-help">Hive health <button class="tip" type="button" aria-label="Hive health help" data-tip="Quick counts for this run: Gathering means active scouts, Waiting means a tool or you are needed, Blocked means stuck, Finished means completed scouts.">i</button></div>
       <article><span id="countRunning">0</span><small>Gathering</small></article>
       <article><span id="countWaiting">0</span><small>Waiting</small></article>
       <article><span id="countBlocked">0</span><small>Blocked</small></article>
@@ -30,34 +30,34 @@
     </section>
 
     <section class="statusbar" aria-label="Current run status">
-      <div><strong id="runTitle">Loading hive…</strong> <button class="tip" type="button" aria-label="Run status help" data-tip="This is the selected Apiary run. It shows the run name, overall state, and how fresh the ledger data is.">?</button><span id="runMeta"></span></div>
+      <div><strong id="runTitle">Loading hive…</strong> <button class="tip" type="button" aria-label="Run status help" data-tip="This is the selected Apiary run. It shows the run name, overall state, and how fresh the ledger data is.">i</button><span id="runMeta"></span></div>
       <div id="decision" class="decision hidden"></div>
     </section>
 
     <section class="workspace">
       <div class="hive-panel">
-        <div class="section-title compact"><h2>Scout cells <button class="tip" type="button" aria-label="Scout cells help" data-tip="Each honeycomb cell is a scout/subagent. Tap a cell to see role, model route, last update, summary, and anything awaiting you.">?</button></h2></div>
+        <div class="section-title compact"><h2>Scout cells <button class="tip" type="button" aria-label="Scout cells help" data-tip="Each honeycomb cell is a scout/subagent. Tap a cell to see role, model route, last update, summary, and anything awaiting you.">i</button></h2></div>
         <div id="hive" class="hive" aria-label="Scout honeycomb"></div>
       </div>
       <aside class="details" aria-live="polite">
-        <p class="eyebrow">Selected scout <button class="tip" type="button" aria-label="Selected scout help" data-tip="This panel explains the selected worker: its role, model route, freshness, summary, and whether it needs input.">?</button></p>
+        <p class="eyebrow">Selected scout <button class="tip" type="button" aria-label="Selected scout help" data-tip="This panel explains the selected worker: its role, model route, freshness, summary, and whether it needs input.">i</button></p>
         <h2 id="detailTitle">Pick a cell</h2>
         <p id="detailStatus" class="badge">No scout selected</p>
         <dl>
-          <dt>Role <button class="mini-tip" type="button" aria-label="Role help" data-tip="The scout's job in the swarm, such as UX scout, tech scout, reviewer, or ledger agent.">?</button></dt><dd id="detailRole">—</dd>
-          <dt>Model <button class="mini-tip" type="button" aria-label="Model route help" data-tip="The Apiary model role and actual route. host-default means OpenClaw/runtime chose the model.">?</button></dt><dd id="detailModel">—</dd>
-          <dt>Seen <button class="mini-tip" type="button" aria-label="Last seen help" data-tip="How recently this scout updated the run ledger. Old updates may indicate stale work.">?</button></dt><dd id="detailSeen">—</dd>
-          <dt>Elapsed <button class="mini-tip" type="button" aria-label="Elapsed time help" data-tip="How long this scout has been running, or how long it took if completed.">?</button></dt><dd id="detailElapsed">—</dd>
+          <dt>Role <button class="mini-tip" type="button" aria-label="Role help" data-tip="The scout's job in the swarm, such as UX scout, tech scout, reviewer, or ledger agent.">i</button></dt><dd id="detailRole">—</dd>
+          <dt>Model <button class="mini-tip" type="button" aria-label="Model route help" data-tip="The Apiary model role and actual route. host-default means OpenClaw/runtime chose the model.">i</button></dt><dd id="detailModel">—</dd>
+          <dt>Seen <button class="mini-tip" type="button" aria-label="Last seen help" data-tip="How recently this scout updated the run ledger. Old updates may indicate stale work.">i</button></dt><dd id="detailSeen">—</dd>
+          <dt>Elapsed <button class="mini-tip" type="button" aria-label="Elapsed time help" data-tip="How long this scout has been running, or how long it took if completed.">i</button></dt><dd id="detailElapsed">—</dd>
           <dt>Summary</dt><dd id="detailSummary">Privacy mode hides details until selected.</dd>
           <dt>Awaiting</dt><dd id="detailAwaiting">—</dd>
         </dl>
-        <div class="scout-log-head"><h3>Scout log <button class="mini-tip" type="button" aria-label="Scout log help" data-tip="Recent ledger events for this scout. These are concise status notes, not raw private logs.">?</button></h3><span id="detailEventCount">0 events</span></div>
+        <div class="scout-log-head"><h3>Scout log <button class="mini-tip" type="button" aria-label="Scout log help" data-tip="Recent ledger events for this scout. These are concise status notes, not raw private logs.">i</button></h3><span id="detailEventCount">0 events</span></div>
         <ol id="detailEvents" class="scout-events"></ol>
       </aside>
     </section>
 
     <section class="timeline">
-      <div class="section-title"><h2>Recent hive signals <button class="tip" type="button" aria-label="Recent signals help" data-tip="A short event timeline: scout starts, completions, failures, retries, and decisions that need attention.">?</button></h2><span id="lastRefresh">Not refreshed yet</span></div>
+      <div class="section-title"><h2>Recent hive signals <button class="tip" type="button" aria-label="Recent signals help" data-tip="A short event timeline: scout starts, completions, failures, retries, and decisions that need attention.">i</button></h2><span id="lastRefresh">Not refreshed yet</span></div>
       <ol id="events"></ol>
     </section>
   </main>
