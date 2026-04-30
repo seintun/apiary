@@ -7,6 +7,136 @@ Apiary helps a coordinator use multiple scouts to explore, challenge, synthesize
 > Coordinated scouts, structured synthesis, durable learning — without a new runtime.
 
 
+
+## Why use Apiary?
+
+AI agents are good at producing answers quickly, but complex decisions often need more than one perspective. Apiary gives you a lightweight way to ask multiple bounded scouts to investigate different angles, then combine their findings into one verified decision.
+
+Use Apiary when you want to:
+
+- reduce blind spots before adopting a tool or architecture,
+- add a devil's advocate without derailing the whole task,
+- compare evidence from multiple sources,
+- keep useful decisions and workflows from disappearing into chat history,
+- make multi-agent or multi-reviewer work structured instead of chaotic,
+- get some of the benefit of swarm/hivemind workflows without installing a new runtime.
+
+Apiary is intentionally small: it is a protocol, not a platform. You can use it with AI agents, normal LLM chats, human teammates, GitHub issues, docs, or any combination of those.
+
+## How it works
+
+Apiary separates a complex decision into clear roles and artifacts:
+
+1. **Coordinator** decides whether Apiary is warranted and owns the final decision.
+2. **Scouts** investigate bounded perspectives, such as research, risk, adaptation, or review.
+3. **Structured reports** make scout findings comparable.
+4. **Synthesis** turns multiple scout reports into one recommendation.
+5. **Verification** checks the recommendation before acting.
+6. **Writeback** saves only durable learning to your docs, wiki, repo, or memory system.
+
+You can run this manually with copy/paste, or adapt it to any agent runtime that supports subagents/reviewers.
+
+## Get started: run your first Apiary
+
+You do not need to install anything.
+
+### 1. Pick a decision
+
+Good first example:
+
+```text
+Should we adopt Tool X for our workflow, borrow patterns from it, or avoid it?
+```
+
+### 2. Choose scouts
+
+For most first runs, use two scouts:
+
+```text
+Research scout: What does Tool X do? What evidence supports it?
+Devil's advocate scout: What are the risks, overlaps, costs, and failure modes?
+```
+
+For broader decisions, add:
+
+```text
+Adaptation scout: If useful, how could we borrow the idea without coupling to Tool X?
+```
+
+### 3. Create scout briefs
+
+Copy `templates/scout-brief.md` once per scout and fill in:
+
+- role,
+- objective,
+- minimal context,
+- allowed actions,
+- forbidden actions.
+
+### 4. Ask scouts for structured output
+
+Use `templates/scout-output.yaml` so every scout returns:
+
+- findings,
+- evidence,
+- confidence,
+- recommendation,
+- stop/recruit signal.
+
+Scouts can be:
+
+- separate LLM chats,
+- agent sub-tasks,
+- human reviewers,
+- GitHub issue comments,
+- CI/review jobs.
+
+### 5. Synthesize
+
+Use `templates/synthesis-report.md` and `checklists/synthesis-checklist.md` to answer:
+
+- where scouts agree,
+- where they disagree,
+- which claims have evidence,
+- what risks remain,
+- what decision you recommend,
+- how to verify it.
+
+### 6. Verify
+
+Pick the smallest meaningful verification gate:
+
+- source check,
+- test/lint/build,
+- dry run,
+- peer review,
+- human approval,
+- explicit blocker.
+
+### 7. Write back
+
+Use `checklists/writeback-checklist.md`. Save only what is durable:
+
+- decision record,
+- runbook/playbook,
+- project docs,
+- issue/PR comment,
+- team wiki note.
+
+Do not save raw scout chatter unless you need an audit trail.
+
+## Usage modes
+
+| Mode | Who it is for | How to use |
+|---|---|---|
+| Plain markdown | Anyone | Copy templates into docs/chats and run manually |
+| AI chat | Users of ChatGPT/Claude/Gemini/etc. | Use one chat as coordinator and others as scouts |
+| Agent runtime | OpenClaw, Claude Code, Codex, Cursor, etc. | Map scouts to subagents/reviewers using an adapter |
+| Human team | Engineering/product/security teams | Assign scout roles to teammates and synthesize in docs/issues |
+| GitHub workflow | Open source/project teams | Use issue/PR comments as scout reports and decision records |
+
+Start with `adapters/plain-markdown/` if you are unsure.
+
 ## Why "Apiary"?
 
 An apiary is a place where hives are kept. That maps cleanly to the workflow:
