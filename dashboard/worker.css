@@ -128,3 +128,7 @@ body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSy
 /* Keep mobile header badges to a single line; compact labels instead of wrapping. */
 @media (max-width:820px){.badge-row{display:flex;flex-wrap:nowrap;gap:6px;overflow:hidden}.badge-row .badge{flex:1 1 0;min-width:0;min-height:30px;white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis;line-height:1!important;font-size:.74rem;padding:5px 7px}}
 @media (max-width:380px){.badge-row{gap:5px}.badge-row .badge{font-size:.68rem;padding:5px 5px}}
+
+/* Worker log severity badges: one quiet line, never stacked. */
+.worker-log li{display:grid!important;grid-template-columns:auto minmax(0,1fr);gap:6px;align-items:baseline}.worker-log li strong{white-space:nowrap!important;line-height:1!important;min-width:max-content;font-size:.68rem!important;padding:3px 6px!important}.worker-log li::marker{content:""}
+@media (max-width:820px){.worker-log li{gap:5px}.worker-log li strong{font-size:.62rem!important;padding:3px 5px!important}}
