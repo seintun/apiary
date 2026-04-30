@@ -166,40 +166,9 @@ The name is intentionally architectural, not tool-specific. Apiary is the enviro
 
 ## Bio-inspired design
 
-Apiary borrows mechanisms from biological collective intelligence because they solve the same problems multi-agent AI workflows face: exploration cost, noisy signals, stale memory, local autonomy, negative feedback, and convergence.
+Apiary is inspired by biological collective intelligence: scouts forage, structured reports act like waggle dances, durable docs form the shared substrate, and quorum/stop signals prevent chaotic over-exploration.
 
-The bio metaphor is not decoration. Each mechanism corresponds to an engineering behavior:
-
-| Bio pattern | Natural function | Apiary workflow | Why it matters |
-|---|---|---|---|
-| Queen pheromone | Colony coherence | Coordinator owns synthesis | Prevents leaderless chaos |
-| Foraging | Parallel exploration | Scouts investigate bounded questions | Gets breadth without one giant context |
-| Waggle dance | Compressed report with quality signal | Structured scout output | Makes synthesis cheaper and more reliable |
-| Stigmergy | Coordination through traces in the environment | Writeback to docs/runbooks/decisions | Lets future runs learn without hidden memory |
-| Quorum sensing | Commit after enough convergent signal | Decision rules | Avoids both premature decisions and endless scouting |
-| Stop signal | De-recruit from bad/depleted paths | Abort or down-rank risky proposals | Prevents sunk-cost continuation |
-| Apoptosis | Clean self-termination | Scout stop conditions | Reduces loops, scope creep, and wasted tokens |
-| Pheromone decay | Old trails fade | Memory/document review and pruning | Keeps stale decisions from dominating |
-| Innate immunity | Fast generic threat detection | Plan-screen checklist | Catches obvious safety issues cheaply |
-| Adaptive immunity | Slow specific learned defense | Devil's advocate scout | Catches subtle, context-specific risk |
-
-## Master correlation matrix
-
-| Bio pattern | Natural function | Apiary system pattern | Generic mechanism | Status |
-|---|---|---|---|---|
-| Queen pheromone | Identity/coherence signal | Coordinator authority | Human/AI lead owns final synthesis | Core |
-| Worker bees / foragers | Parallel exploration | Scouts | Agents, humans, chats, reviewers, CI jobs | Core |
-| Stigmergy | Trace-based coordination | Durable substrate | Docs, wiki, repo, notes, decision log | Core |
-| Waggle dance | Structured location/quality report | Scout output schema | YAML/JSON/markdown report | Core |
-| Apoptosis | Self-termination | Scout stop conditions | Scope/cost/confidence limits | Core |
-| Stop signal | Negative feedback | Abort bad paths | Devil's advocate/reviewer veto | Core |
-| Quorum sensing | Evidence-weighted convergence | Decision threshold | 2-of-3, targeted resolving scout | Core |
-| Adaptive immunity | Learned defense | Devil's advocate | Risk/security/privacy review | Core |
-| Innate immunity | Cheap generic defense | Plan screen | Checklist/static checks | Optional |
-| Pheromone decay | Memory aging | Review/prune durable knowledge | Docs review, archive, decay metadata | Optional |
-| Symbiosis | Stable specialist relationship | Persistent specialist | Domain expert, recurring agent/session | Optional |
-| Mycelium / pull-based flow | Nutrients move on demand | Lazy context loading | Minimal context, source retrieval first | Principle |
-| Circadian rhythm | Phased cycles | Workflow stages | Classify -> retrieve -> scout -> synthesize -> verify -> writeback | Principle |
+The bio framing is practical, not decorative: each mechanism maps to a workflow behavior that improves coordination, safety, or memory. See [BIO_INSPIRED.md](BIO_INSPIRED.md) for the full master correlation matrix.
 
 ## Workflow in practice
 
@@ -255,6 +224,7 @@ The coordinator can be a human, an AI assistant, a coding agent, or a team lead.
 - [Quickstart](QUICKSTART.md)
 - [Architecture](ARCHITECTURE.md)
 - [Diagrams](DIAGRAMS.md)
+- [Bio-Inspired Design](BIO_INSPIRED.md)
 - [Technical Notes](TECHNICAL.md)
 - [Protocol](protocol/apiary-protocol.md)
 - [Decision Rules](protocol/decision-rules.md)
