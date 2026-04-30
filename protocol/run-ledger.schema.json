@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://apiary-protocol.local/schemas/run-ledger.schema.json",
+  "title": "Apiary Run Ledger",
+  "type": "object",
+  "required": ["schemaVersion", "runId", "title", "status", "createdAt", "updatedAt", "scouts", "events"],
+  "properties": {
+    "schemaVersion": { "const": "apiary.run.v1" },
+    "runId": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "status": { "$ref": "#/$defs/status" },
+    "privacyMode": { "type": "boolean" },
+    "createdAt": { "type": "string" },
+    "updatedAt": { "type": "string" },
+    "completedAt": { "type": ["string", "null"] },
+    "coordinator": {
+      "type": "object",
+      "properties": {
+        "adapter": { "type": "string" },
+        "label": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "summary": { "$ref": "#/$defs/summary" },
+    "scouts": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/scout" }
+    },
+    "events": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/event" }
+    },
+    "decisionAwaiting": { "type": ["string", "null"] }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "status": {
+      "enum": ["queued", "running", "waiting_tool", "waiting_user", "blocked", "retrying", "done", "failed", "canceled", "stale"]
+    },
+    "eventType": {
+      "enum": ["state", "log", "heartbeat", "warning", "error", "artifact", "decision"]
+    },
+    "severity": {
+      "enum": ["info", "success", "warning", "danger"]
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total", "queued", "running", "waiting", "blocked", "done", "failed", "canceled", "stale"],
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "queued": { "type": "integer", "minimum": 0 },
+        "running": { "type": "integer", "minimum": 0 },
+        "waiting": { "type": "integer", "minimum": 0 },
+        "blocked": { "type": "integer", "minimum": 0 },
+        "done": { "type": "integer", "minimum": 0 },
+        "failed": { "type": "integer", "minimum": 0 },
+        "canceled": { "type": "integer", "minimum": 0 },
+        "stale": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "scout": {
+      "type": "object",
+      "required": ["id", "label", "role", "status", "startedAt", "lastSeenAt"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "role": { "type": "string", "minLength": 1 },
+        "modelRole": { "type": "string" },
+        "model": { "type": ["string", "null"] },
+        "status": { "$ref": "#/$defs/status" },
+        "sessionKey": { "type": ["string", "null"] },
+        "startedAt": { "type": "string" },
+        "lastSeenAt": { "type": "string" },
+        "completedAt": { "type": ["string", "null"] },
+        "progress": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "summary": { "type": "string" },
+        "awaiting": { "type": ["string", "null"] },
+        "artifactPaths": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "event": {
+      "type": "object",
+      "required": ["id", "ts", "type", "severity", "message"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "ts": { "type": "string" },
+        "type": { "$ref": "#/$defs/eventType" },
+        "severity": { "$ref": "#/$defs/severity" },
+        "scoutId": { "type": ["string", "null"] },
+        "message": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}
