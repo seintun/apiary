@@ -124,3 +124,7 @@ body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSy
 .worker-headline{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start}.badge-row{grid-column:2;display:flex;flex-wrap:wrap;gap:6px;margin-top:9px;align-items:center}.badge-row .badge{white-space:nowrap}.worker-headline>.worker-icon{grid-column:1;grid-row:1 / span 2}.worker-headline>div:not(.badge-row){grid-column:2;min-width:0}
 @media (max-width:820px){.worker-headline{grid-template-columns:auto minmax(0,1fr);gap:10px}.badge-row{grid-column:1/-1;margin-top:2px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.badge-row .badge{justify-content:center;text-align:center;white-space:normal;line-height:1.15;min-height:36px;padding:5px 6px}.worker-headline h2{max-width:100%}}
 @media (max-width:380px){.badge-row{gap:5px}.badge-row .badge{font-size:.72rem;padding:5px 4px}}
+
+/* Keep mobile header badges to a single line; compact labels instead of wrapping. */
+@media (max-width:820px){.badge-row{display:flex;flex-wrap:nowrap;gap:6px;overflow:hidden}.badge-row .badge{flex:1 1 0;min-width:0;min-height:30px;white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis;line-height:1!important;font-size:.74rem;padding:5px 7px}}
+@media (max-width:380px){.badge-row{gap:5px}.badge-row .badge{font-size:.68rem;padding:5px 5px}}

@@ -95,8 +95,8 @@ function deriveWorkerDetailView(worker, run, reportData, reportLoadError){
     reportStatus,
     freshness,
     reportLoadError,
-    sourceLabel: source === 'ledger-derived' ? 'Derived from ledger' : (source === 'hybrid' ? 'Hybrid: report + ledger' : 'Full report'),
-    freshnessLabel: freshness === 'missing-report' ? 'Missing report' : freshness === 'stale-report' ? 'Stale report' : freshness === 'derived-only' ? 'Derived only' : 'Fresh',
+    sourceLabel: source === 'ledger-derived' ? 'Ledger-derived' : (source === 'hybrid' ? 'Hybrid' : 'Full report'),
+    freshnessLabel: freshness === 'missing-report' ? 'Missing' : freshness === 'stale-report' ? 'Stale report' : freshness === 'derived-only' ? 'Derived' : 'Fresh',
   }
 }
 function renderWorker(worker, run){
