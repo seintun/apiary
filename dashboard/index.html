@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Apiary Hive Board</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Apiary Monitor</p>
+        <h1>Hive Board</h1>
+        <p class="lede">A calm, friendly view of scouts, blockers, and decisions.</p>
+      </div>
+      <div class="actions">
+        <button id="privacyToggle" class="ghost" type="button">Privacy: on</button>
+        <button id="motionToggle" class="ghost" type="button">Focus mode</button>
+        <button id="refreshBtn" type="button">Refresh</button>
+      </div>
+    </header>
+
+    <section class="health" aria-label="Hive health">
+      <article><span id="countRunning">0</span><small>Gathering</small></article>
+      <article><span id="countWaiting">0</span><small>Waiting</small></article>
+      <article><span id="countBlocked">0</span><small>Blocked</small></article>
+      <article><span id="countDone">0</span><small>Finished</small></article>
+    </section>
+
+    <section class="statusbar">
+      <div><strong id="runTitle">Loading hive…</strong><span id="runMeta"></span></div>
+      <div id="decision" class="decision hidden"></div>
+    </section>
+
+    <section class="workspace">
+      <div class="hive-panel">
+        <div id="hive" class="hive" aria-label="Scout honeycomb"></div>
+      </div>
+      <aside class="details" aria-live="polite">
+        <p class="eyebrow">Selected scout</p>
+        <h2 id="detailTitle">Pick a cell</h2>
+        <p id="detailStatus" class="badge">No scout selected</p>
+        <dl>
+          <dt>Role</dt><dd id="detailRole">—</dd>
+          <dt>Model route</dt><dd id="detailModel">—</dd>
+          <dt>Last seen</dt><dd id="detailSeen">—</dd>
+          <dt>Summary</dt><dd id="detailSummary">Privacy mode hides details until selected.</dd>
+          <dt>Awaiting</dt><dd id="detailAwaiting">—</dd>
+        </dl>
+      </aside>
+    </section>
+
+    <section class="timeline">
+      <div class="section-title"><h2>Recent hive signals</h2><span id="lastRefresh">Not refreshed yet</span></div>
+      <ol id="events"></ol>
+    </section>
+  </main>
+  <script src="sample-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

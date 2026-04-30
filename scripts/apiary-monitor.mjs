@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 
-const ROOT = path.resolve(new URL('..', import.meta.url).pathname, '..')
+const ROOT = path.resolve(new URL('..', import.meta.url).pathname)
 const RUNS_DIR = path.join(ROOT, 'runs')
 const REGISTRY_PATH = path.join(RUNS_DIR, 'registry.json')
 const ICONS = { queued:'○', running:'✦', waiting_tool:'◔', waiting_user:'?', blocked:'!', retrying:'↻', done:'✓', failed:'✕', canceled:'−', stale:'…' }

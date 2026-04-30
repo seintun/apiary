@@ -6,7 +6,7 @@ import crypto from 'node:crypto'
 export const STATUSES = new Set(['queued','running','waiting_tool','waiting_user','blocked','retrying','done','failed','canceled','stale'])
 export const EVENT_TYPES = new Set(['state','log','heartbeat','warning','error','artifact','decision'])
 export const SEVERITIES = new Set(['info','success','warning','danger'])
-const ROOT = path.resolve(new URL('..', import.meta.url).pathname, '..')
+const ROOT = path.resolve(new URL('..', import.meta.url).pathname)
 const RUNS_DIR = path.join(ROOT, 'runs')
 const REGISTRY_PATH = path.join(RUNS_DIR, 'registry.json')
 
