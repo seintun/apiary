@@ -47,9 +47,12 @@
           <dt>Role <button class="mini-tip" type="button" aria-label="Role help" data-tip="The scout's job in the swarm, such as UX scout, tech scout, reviewer, or ledger agent.">?</button></dt><dd id="detailRole">—</dd>
           <dt>Model <button class="mini-tip" type="button" aria-label="Model route help" data-tip="The Apiary model role and actual route. host-default means OpenClaw/runtime chose the model.">?</button></dt><dd id="detailModel">—</dd>
           <dt>Seen <button class="mini-tip" type="button" aria-label="Last seen help" data-tip="How recently this scout updated the run ledger. Old updates may indicate stale work.">?</button></dt><dd id="detailSeen">—</dd>
+          <dt>Elapsed <button class="mini-tip" type="button" aria-label="Elapsed time help" data-tip="How long this scout has been running, or how long it took if completed.">?</button></dt><dd id="detailElapsed">—</dd>
           <dt>Summary</dt><dd id="detailSummary">Privacy mode hides details until selected.</dd>
           <dt>Awaiting</dt><dd id="detailAwaiting">—</dd>
         </dl>
+        <div class="scout-log-head"><h3>Scout log <button class="mini-tip" type="button" aria-label="Scout log help" data-tip="Recent ledger events for this scout. These are concise status notes, not raw private logs.">?</button></h3><span id="detailEventCount">0 events</span></div>
+        <ol id="detailEvents" class="scout-events"></ol>
       </aside>
     </section>
 
