@@ -1,7 +1,7 @@
 const $ = (id) => document.getElementById(id)
 const labels = { queued:'Queued', running:'Gathering', waiting_tool:'Waiting on tool', waiting_user:'Waiting for you', waiting_model:'Waiting for model', needs_review:'Needs review', needs_tests:'Needs tests', blocked:'Blocked', retrying:'Trying again', done:'Finished', failed:'Failed', canceled:'Canceled', stale:'Quiet too long' }
 const icons = { queued:'○', running:'🐝', waiting_tool:'🛠️', waiting_user:'👋', waiting_model:'⏳', needs_review:'🔎', needs_tests:'🧪', blocked:'⚠️', retrying:'↻', done:'✓', failed:'✕', canceled:'−', stale:'…' }
-const toneIcons = { good:'✓', bad:'!', warning:'!', waiting:'⏳', running:'↻', decision:'💡', dispatch:'↗', log:'i', info:'ⓘ', done:'✓', blocked:'!', failed:'✕', stale:'…' }
+const toneIcons = { good:'✓', bad:'!', warning:'!', waiting:'⏳', running:'↻', decision:'💡', dispatch:'↗', log:'ⓘ', info:'ⓘ', done:'✓', blocked:'!', failed:'✕', stale:'…' }
 const eventKindLabels = {
   'task.created':'Task born', 'command.sent':'Command issued', 'decision.made':'Decision made', 'worker.dispatched':'Worker dispatched',
   'run.started':'Worker started', 'run.log':'Worker log', 'run.completed':'Worker completed', 'run.failed':'Worker failed', 'artifact.created':'Artifact saved',
@@ -85,8 +85,8 @@ function taskForRun(run){
 }
 function eventTone(kind, severity){ if(/fail|error|blocked/.test(kind)||severity==='error') return 'bad'; if(/warn|retry/.test(kind)||severity==='warning') return 'warning'; if(/decision|command/.test(kind)) return 'decision'; if(/dispatch|started/.test(kind)) return 'dispatch'; if(/completed|success|done/.test(kind)||severity==='success') return 'good'; if(/log|state|info/.test(kind)) return 'log'; return 'info' }
 function statusTone(status){ if(['done'].includes(status)) return 'good'; if(['failed','blocked'].includes(status)) return 'bad'; if(['waiting_tool','waiting_user','waiting_model','needs_review','needs_tests','retrying'].includes(status)) return 'warning'; if(['running','queued'].includes(status)) return 'running'; if(status==='stale') return 'stale'; return 'info' }
-function statusBadge(status, extra=''){ const tone=statusTone(status); const label=labels[status]||status||'Queued'; return `${toneIcons[tone]||icons[status]||'i'} ${label}${extra}` }
-function severityBadge(severity='info', kind='info'){ const tone=eventTone(kind, severity); const label=eventKindLabels[severity] || eventKindLabels[kind] || severity || 'Info'; return `${toneIcons[tone]||'i'} ${label}` }
+function statusBadge(status, extra=''){ const tone=statusTone(status); const label=labels[status]||status||'Queued'; return `${toneIcons[tone]||icons[status]||'ⓘ'} ${label}${extra}` }
+function severityBadge(severity='info', kind='info'){ const tone=eventTone(kind, severity); const label=eventKindLabels[severity] || eventKindLabels[kind] || severity || 'Info'; return `${toneIcons[tone]||'ⓘ'} ${label}` }
 function setToneClass(el, prefix, tone){ if(!el) return; for(const name of ['good','bad','warning','running','waiting','stale','info','decision','dispatch','log']) el.classList.remove(`${prefix}-${name}`); el.classList.add(`${prefix}-${tone}`) }
 
 function stableRender(){
