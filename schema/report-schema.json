@@ -1,0 +1,126 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Apiary Worker Report",
+  "description": "Schema for a full worker report from an Apiary worker run, kept separate from the run ledger.",
+  "type": "object",
+  "required": [
+    "runId",
+    "workerId",
+    "headline",
+    "doing",
+    "accomplished",
+    "findings",
+    "artifacts",
+    "filesTouched",
+    "nextSteps",
+    "risks",
+    "createdAt",
+    "updatedAt"
+  ],
+  "properties": {
+    "runId": {
+      "type": "string",
+      "description": "Unique identifier for the overall run, typically a UUID or timestamp-prefixed ID."
+    },
+    "workerId": {
+      "type": "string",
+      "description": "Unique identifier for the worker instance (e.g., hostname, pod name, or UUID)."
+    },
+    "doing": {
+      "type": "string",
+      "description": "What the worker was doing at the start of this report period.",
+      "maxLength": 1000
+    },
+    "accomplished": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 1000
+      },
+      "description": "List of accomplishments or completed tasks for this period.",
+      "maxItems": 20
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 1000
+      },
+      "description": "Key findings, observations, or discoveries made during work.",
+      "maxItems": 20
+    },
+    "artifacts": {
+      "type": "array",
+      "description": "Artifacts produced or consumed by this worker.",
+      "items": {
+        "type": "object",
+        "required": [
+          "label",
+          "path",
+          "kind"
+        ],
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "Human-friendly name or description of the artifact.",
+            "maxLength": 120
+          },
+          "path": {
+            "type": "string",
+            "description": "Relative or absolute file path to the artifact.",
+            "maxLength": 260
+          },
+          "kind": {
+            "type": "string",
+            "description": "Type/category of artifact (e.g., report, log, data, binary, config).",
+            "maxLength": 120
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "filesTouched": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 260
+      },
+      "description": "List of file paths that were read, modified, or created by the worker.",
+      "maxItems": 20
+    },
+    "nextSteps": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 1000
+      },
+      "description": "Planned next actions or follow-ups for this worker.",
+      "maxItems": 20
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 1000
+      },
+      "description": "Identified risks, blockers, or concerns that require attention.",
+      "maxItems": 20
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this report was generated (ISO 8601)."
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this report was last modified (ISO 8601)."
+    },
+    "headline": {
+      "type": "string",
+      "maxLength": 160,
+      "description": "Short human-readable report title."
+    }
+  },
+  "additionalProperties": false
+}

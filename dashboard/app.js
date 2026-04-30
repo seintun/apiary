@@ -14,7 +14,7 @@ const workerTypeIcons = [
 function workerIcon(worker){ const key=`${worker?.role||''} ${worker?.label||''} ${worker?.id||''}`; return workerTypeIcons.find(([re])=>re.test(key))?.[1] || '🐝' }
 const activeStatuses = new Set(['queued','running','waiting_tool','retrying'])
 const STALE_AFTER_MS = 5 * 60 * 1000
-let currentRun = null, selectedId = null, privacy = false, healthFilter = 'all', historyFilter = 'all', historyScroll = { all:0, active:0, done:0 }, chipScroll = 0, runRegistry = [], selectedRunId = null, eventFilter = 'all'
+let currentRun = null, selectedId = null, privacy = false, healthFilter = 'all', historyFilter = 'all', historyScroll = { all:0, active:0, done:0 }, chipScroll = 0, runRegistry = [], selectedRunId = null, eventFilter = 'all', lastRunUpdatedAt = 0
 function age(iso){ if(!iso) return '—'; const s=Math.max(0,Math.round((Date.now()-new Date(iso))/1000)); if(s<60)return `${s}s ago`; const m=Math.round(s/60); return m<60?`${m}m ago`:`${Math.round(m/60)}h ago` }
 
 function dateKey(iso){ if(!iso) return 'unknown'; return new Date(iso).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}) }
@@ -54,6 +54,18 @@ async function loadRun(runId=selectedRunId){
   privacy = false
   render()
 }
+
+function pulseLiveIndicator(updatedAt){
+  const indicator=$('liveIndicator'); if(!indicator) return
+  const stamp = updatedAt ? new Date(updatedAt).getTime() : Date.now()
+  if(stamp && stamp > lastRunUpdatedAt){
+    lastRunUpdatedAt = stamp
+    indicator.classList.remove('pollinated')
+    void indicator.offsetWidth
+    indicator.classList.add('pollinated')
+  }
+}
+
 function statusClass(s){ return ['waiting_tool','waiting_user'].includes(s)?s:s||'queued' }
 function summaryWithStale(run){ const scouts=run.scouts||[]; return { total:scouts.length, running:scouts.filter(s=>['running','queued','retrying'].includes(displayStatus(s))).length, waiting:scouts.filter(s=>['waiting_tool','waiting_user'].includes(displayStatus(s))).length, blocked:scouts.filter(s=>['blocked','failed'].includes(displayStatus(s))).length, done:scouts.filter(s=>['done','canceled'].includes(displayStatus(s))).length, stale:scouts.filter(isStale).length } }
 function normalizeEvent(evt, run=currentRun){
@@ -75,7 +87,7 @@ function stableRender(){
   render()
   requestAnimationFrame(()=>window.scrollTo(x,y))
 }
-function render(){ const run=currentRun; if(!run) return; const workers=run.scouts||[]; const sum=summaryWithStale(run); $('countRunning').textContent=sum.running||0; $('countWaiting').textContent=sum.waiting||0; $('countBlocked').textContent=sum.blocked||0; $('countDone').textContent=sum.done||0; renderHealthCards(sum); $('runTitle').textContent=run.title; $('runMeta').textContent=`${labels[run.status]||run.status} · updated ${age(run.updatedAt)}`; $('decision').classList.toggle('hidden',!run.decisionAwaiting); $('decision').textContent=run.decisionAwaiting?`Waiting for you: ${run.decisionAwaiting}`:''; renderRunHistory(); renderTaskProvenance(taskForRun(run)); renderHealthWorkers(workers); renderEvents(run.events||[]); renderDetails(workers.find(s=>s.id===selectedId)); $('lastRefresh').textContent=`Refreshed ${new Date().toLocaleTimeString()}` }
+function render(){ const run=currentRun; if(!run) return; const workers=run.scouts||[]; const sum=summaryWithStale(run); $('countRunning').textContent=sum.running||0; $('countWaiting').textContent=sum.waiting||0; $('countBlocked').textContent=sum.blocked||0; $('countDone').textContent=sum.done||0; renderHealthCards(sum); $('runTitle').textContent=run.title; $('runMeta').textContent=`${labels[run.status]||run.status} · updated ${age(run.updatedAt)}`; $('decision').classList.toggle('hidden',!run.decisionAwaiting); $('decision').textContent=run.decisionAwaiting?`Waiting for you: ${run.decisionAwaiting}`:''; renderRunHistory(); renderTaskProvenance(taskForRun(run)); renderHealthWorkers(workers); renderEvents(run.events||[]); renderDetails(workers.find(s=>s.id===selectedId)); $('lastRefresh').textContent=`Refreshed ${new Date().toLocaleTimeString()}`; pulseLiveIndicator(run.updatedAt) }
 function filterKind(worker){ const status=displayStatus(worker); if(status==='waiting_tool'||status==='waiting_user') return 'waiting'; if(status==='blocked'||status==='failed') return 'blocked'; if(status==='done'||status==='canceled') return 'done'; return 'running' }
 function visibleWorkers(workers){ return healthFilter==='all' ? workers : workers.filter(w=>filterKind(w)===healthFilter) }
 function renderHealthCards(sum){
@@ -89,6 +101,28 @@ function appendInlineDetails(tbody, scout, status){
   for(const [label,value] of items){ const item=document.createElement('div'); item.className='inline-fact'; item.append(textEl('span', label), textEl('strong', value)); facts.appendChild(item) }
   const summary=document.createElement('p'); summary.className='inline-summary'; summary.textContent=scout.summary||'No summary yet.'; box.append(facts, summary)
   const ev=scoutEvents(scout); if(ev.length){ const list=document.createElement('ol'); list.className='inline-events'; for(const evt of ev.slice(0,3)){ const li=document.createElement('li'); li.append(textEl('strong', evt.severity||'info'), document.createTextNode(` · ${eventStamp(evt.ts)} · ${cleanSummary(evt.message||'')}`)); list.appendChild(li) } box.appendChild(list) }
+
+  const legacyReport = scout.report || (currentRun?.reports && currentRun.reports[scout.id]) || {}
+  const reportHeadline = scout.reportHeadline || legacyReport.headline || ''
+  const reportBullets = Array.isArray(scout.reportBullets) ? scout.reportBullets : (Array.isArray(legacyReport.bullets) ? legacyReport.bullets : [])
+  const hasReportHeadline = reportHeadline.trim().length > 0
+  const hasReportBullets = reportBullets.length > 0
+  if(hasReportHeadline || hasReportBullets || scout.reportPath || legacyReport.path){
+    const reportSection=document.createElement('div'); reportSection.className='inline-report'
+    const toggleBtn=document.createElement('button'); toggleBtn.type='button'; toggleBtn.className='report-toggle'; toggleBtn.textContent='Show preview'
+    const content=document.createElement('div'); content.className='report-content'
+    if(hasReportHeadline) content.appendChild(textEl('p', reportHeadline.trim(), 'report-headline'))
+    if(hasReportBullets){ const ul=document.createElement('ul'); ul.className='report-bullets'; for(const bullet of reportBullets.slice(0,3)){ ul.appendChild(textEl('li', bullet)) } content.appendChild(ul) }
+    const meta=[]; if(scout.reportStatus || legacyReport.status) meta.push(`Report: ${scout.reportStatus || legacyReport.status}`); if(scout.reportUpdatedAt) meta.push(`updated ${age(scout.reportUpdatedAt)}`); if(meta.length) content.appendChild(textEl('p', meta.join(' · '), 'report-meta'))
+    const fullUrl = `worker.html?run=${encodeURIComponent(currentRun?.runId || selectedRunId || '')}&worker=${encodeURIComponent(scout.id)}`
+    const linkBtn=document.createElement('a'); linkBtn.href=fullUrl; linkBtn.target='_blank'; linkBtn.rel='noopener noreferrer'; linkBtn.className='report-link'; linkBtn.textContent='View full report'
+    content.appendChild(linkBtn)
+    reportSection.append(toggleBtn, content); box.appendChild(reportSection)
+    if(window.matchMedia && window.matchMedia('(max-width: 820px)').matches) content.classList.add('collapsed')
+    else toggleBtn.textContent='Hide preview'
+    toggleBtn.onclick=()=>{ const isCollapsed = content.classList.toggle('collapsed'); toggleBtn.textContent = isCollapsed ? 'Show preview' : 'Hide preview' }
+  }
+
   td.appendChild(box); detail.appendChild(td); tbody.appendChild(detail)
 }
 function scoutEvents(scout){ return (currentRun?.events||[]).filter(e=>e.scoutId===scout?.id).slice(-5).reverse() }

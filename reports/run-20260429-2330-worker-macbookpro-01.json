@@ -1,0 +1,50 @@
+{
+  "runId": "run-20260429-2330",
+  "workerId": "worker-macbookpro-01",
+  "doing": "Executing worker phase 3: design report artifact format and draft sample report.",
+  "accomplished": [
+    "Reviewed phase 3 requirements and defined bounded fields for worker reports",
+    "Designed JSON schema with strict type checks and required fields",
+    "Proposed directory layout: projects/apiary-protocol/reports/<runId>-<workerId>.json",
+    "Created schema file at projects/apiary-protocol/schema/report-schema.json",
+    "Generated this sample report as a concrete example"
+  ],
+  "findings": [
+    "Schema separation from run ledger improves auditability and traceability",
+    "Bounded fields prevent runaway metadata and keep reports concise",
+    "Artifacts array with (label, path, kind) triples provides useful indexing",
+    "ISO 8601 timestamps enable programmatic sorting and lifecycle analysis",
+    "FilesTouched supports change-impact analysis across runs"
+  ],
+  "artifacts": [
+    {
+      "label": "JSON Schema Definition",
+      "path": "projects/apiary-protocol/schema/report-schema.json",
+      "kind": "schema"
+    },
+    {
+      "label": "Sample Worker Report",
+      "path": "projects/apiary-protocol/reports/run-20260429-2330-worker-macbookpro-01.json",
+      "kind": "report"
+    }
+  ],
+  "filesTouched": [
+    "projects/apiary-protocol/schema/report-schema.json",
+    "projects/apiary-protocol/reports/run-20260429-2330-worker-macbookpro-01.json"
+  ],
+  "nextSteps": [
+    "Validate schema against sample using a JSON validator (ajv, jsonschema)",
+    "Review schema with team and iterate if needed",
+    "Implement writer in worker code to emit reports at phase boundaries",
+    "Add report archival/rotation strategy to coordinator",
+    "Document schema in protocol README"
+  ],
+  "risks": [
+    "Schema additionalProperties=false is strict; if new fields are needed later, a bump to v2 will be required",
+    "No explicit version field in report \u2014 consider adding 'schemaVersion'",
+    "FilesTouched path resolution may need normalization across platforms"
+  ],
+  "createdAt": "2026-04-29T23:32:00-07:00",
+  "updatedAt": "2026-04-29T23:32:00-07:00",
+  "headline": "Phase 3 report artifact schema complete"
+}

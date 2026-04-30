@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Worker detail — Honey ComBoard</title>
+  <link rel="stylesheet" href="worker.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div>
+        <h1>Worker detail</h1>
+        <p class="lede"><span class="lede-full">Inspect a single worker's status, progress, and activity.</span><span class="lede-short">Worker status & activity.</span></p>
+      </div>
+      <div class="actions compact-actions">
+        <a href="index.html" class="back-link" title="Back to dashboard">← Back</a>
+      </div>
+    </header>
+
+    <section id="loading" class="status-card">
+      <p>Loading worker…</p>
+    </section>
+
+    <section id="not-found" class="status-card hidden">
+      <h2>Worker not found</h2>
+      <p>Could not locate the specified worker in this run.</p>
+      <a href="index.html">← Back to dashboard</a>
+    </section>
+
+    <article id="worker-detail" class="worker-card hidden" aria-live="polite">
+      <header class="worker-headline">
+        <div class="worker-icon" id="workerIcon">🐝</div>
+        <div>
+          <h2 id="workerTitle">Worker name</h2>
+          <p class="worker-meta" id="workerMeta">role · model</p>
+        </div>
+        <span class="badge" id="workerStatus">status</span>
+      </header>
+
+      <section class="worker-section">
+        <h3>Doing</h3>
+        <p id="workerDoing">Current activity or "Idle"</p>
+        <dl class="worker-facts">
+          <dt>Started</dt><dd id="workerStarted">—</dd>
+          <dt>Seen</dt><dd id="workerSeen">—</dd>
+          <dt>Elapsed</dt><dd id="workerElapsed">—</dd>
+          <dt>Awaiting</dt><dd id="workerAwaiting">—</dd>
+        </dl>
+      </section>
+
+      <section class="worker-section">
+        <h3>Accomplished</h3>
+        <div id="workerAccomplished" class="worker-accomplished">Summary of completed work</div>
+      </section>
+
+      <section class="worker-section">
+        <h3>Findings</h3>
+        <div id="workerFindings" class="worker-findings">Key observations or analysis</div>
+      </section>
+
+      <section class="worker-section">
+        <h3>Artifacts</h3>
+        <ul id="workerArtifacts" class="worker-artifacts"></ul>
+      </section>
+
+      <section class="worker-section">
+        <h3>Files touched</h3>
+        <ul id="workerFiles" class="worker-files"></ul>
+      </section>
+
+      <section class="worker-section">
+        <h3>Next steps</h3>
+        <ul id="workerNextSteps" class="worker-next-steps"></ul>
+      </section>
+
+      <section class="worker-section">
+        <h3>Risks</h3>
+        <ul id="workerRisks" class="worker-risks"></ul>
+      </section>
+
+      <section class="worker-section worker-log-section">
+        <h3>Worker log</h3>
+        <ol id="workerLog" class="worker-log"></ol>
+      </section>
+
+      <footer class="worker-footer">
+        <a href="index.html" class="back-link">← Back to dashboard</a>
+        <span class="worker-id">Worker: <code id="workerIdDisplay">—</code></span>
+      </footer>
+    </article>
+  </main>
+
+  <script src="worker.js"></script>
+</body>
+</html>

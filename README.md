@@ -56,6 +56,23 @@ Dashboard controls:
 - **Focus** toggles a calmer no-motion view and displays an obvious on/off state.
 - **Refresh** reloads the latest ledger and gives tap feedback.
 
+**Report preview & detail pages**
+
+The dashboard shows a compact report preview inline for workers that have reported structured findings. Tap a worker row to expand it:
+
+- **Preview card** shows:
+  - Report headline (bold line)
+  - Up to 3 bullet points from `reportBullets`
+  - "Show preview" / "Hide preview" toggle (collapsed by default on mobile)
+  - "View full report" button that opens the dedicated worker detail page in a new tab.
+
+- **Full report page** (`worker.html?run=<runId>&worker=<workerId>`):
+  - Shows all structured sections: Doing, Accomplished, Findings, Artifacts, Files touched, Next steps, Risks
+  - Fetches the full report artifact if `reportPath` is present in the ledger
+  - Falls back to ledger summary if the report file is missing
+  - All text is sanitized via `safeText()` to prevent XSS
+  - Back link returns to the dashboard
+
 Zombie-worker prevention:
 
 - `node scripts/apiary-run.mjs sweep-stale --run <run-id> --older-than-minutes 5` marks old active workers as `stale` and records a warning event.
@@ -65,6 +82,91 @@ Zombie-worker prevention:
 Security/privacy note: dashboard privacy mode is display/glance privacy only. Treat the monitor as a local/trusted-tailnet tool.
 
 See [protocol/worker-taxonomy.md](protocol/worker-taxonomy.md), [protocol/monitor-implementation-plan.md](protocol/monitor-implementation-plan.md) and [adapters/openclaw/monitor.md](adapters/openclaw/monitor.md).
+
+## Worker reports
+
+Apiary workers can produce structured reports that appear both inline in the dashboard and on a dedicated detail page. The report system keeps the run ledger small while allowing rich information to be retrieved on demand.
+
+### Ledger report fields (preview)
+
+Workers can add these optional fields to their scout entry in the ledger:
+
+| Field | Type | Description |
+|---|---|---|
+| `reportHeadline` | `string` | One-line summary of findings
+| `reportBullets` | `string[]` | Key bullet points (max 5)
+| `reportPath` | `string` | Path to the full report artifact file (e.g., `reports/run-abc-worker1.json`)
+| `reportUpdatedAt` | `string` (ISO) | When this report was last updated
+| `reportStatus` | `"partial" \| "final"` | Whether the report is interim or complete
+
+These fields are **optional** and backward-compatible with older runs that omit them.
+
+### Producing a report via CLI
+
+The `apiary-run` script accepts flags for report metadata when updating or completing a worker:
+
+```bash
+# While a run is active, update a worker with report data
+node scripts/apiary-run.mjs worker-update \
+  --run <run-id> \
+  --id <worker-id> \
+  --summary "Summary text" \
+  --report-headline "Key finding in one line" \
+  --report-bullet "First evidence" \
+  --report-bullet "Second evidence" \
+  --report-path "reports/<run-id>-<worker-id>.json" \
+  --report-status partial
+
+# On completion, mark report as final
+node scripts/apiary-run.mjs worker-complete \
+  --run <run-id> \
+  --id <worker-id> \
+  --report-status final
+```
+
+Validation:
+
+- `--report-path` is validated to stay within the project directory
+- `--report-bullet` can be repeated (up to 5 bullets total)
+- `--report-headline` max 120 characters
+- `--report-status` accepts only `partial` or `final`
+
+### Full report artifact format
+
+When `--report-path` is supplied, the CLI records the report artifact path in the run ledger. The worker/coordinator should write the JSON report file at that path using this shape (see `schema/report-schema.json`):
+
+```json
+{
+  "runId": "run-abc",
+  "workerId": "worker1",
+  "doing": "What the worker was working on",
+  "accomplished": ["Completed task A", "Finished subtask B"],
+  "findings": ["Observation 1", "Observation 2"],
+  "artifacts": [{"label": "Analysis doc", "path": "docs/analysis.md", "kind": "report"}],
+  "filesTouched": ["src/foo.js", "tests/foo.test.js"],
+  "nextSteps": ["Integrate changes", "Run CI"],
+  "risks": ["Potential regression in edge case X"],
+  "createdAt": "2026-04-30T01:00:00.000Z",
+  "updatedAt": "2026-04-30T01:05:00.000Z"
+}
+```
+
+Keep fields reasonably bounded (10–20 items per array) to keep files readable by humans and fast to load in the dashboard.
+
+### Dashboard usage
+
+1. Open the dashboard: `node scripts/apiary-serve-monitor.mjs 8765` then visit `http://localhost:8765`
+2. Each worker row shows status, model, and last-seen age
+3. Tap a row to expand inline details
+4. If the worker has submitted report fields, an **inline report preview** card appears:
+   - Headline in bold
+   - Up to 3 bullets from `reportBullets`
+   - "Show preview" / "Hide preview" toggle (collapsed by default on mobile)
+   - "View full report" button → opens `worker.html?run=<runId>&worker=<workerId>`
+5. Full report page shows all sections with safe text rendering
+6. Back link returns to the dashboard
+
+The dashboard auto-refreshes every 3 seconds. Reports are loaded from the ledger (preview) and from the separate report artifact (full page).
 
 ## How it works
 

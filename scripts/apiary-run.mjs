@@ -21,7 +21,12 @@ function parseArgs(argv) {
       const k=a.slice(2)
       const n=argv[i+1]
       if (!n || n.startsWith('--')) out[k]=true
-      else out[k]=argv[++i]
+      else {
+        const value = argv[++i]
+        if (out[k] === undefined) out[k] = value
+        else if (Array.isArray(out[k])) out[k].push(value)
+        else out[k] = [out[k], value]
+      }
     } else out._.push(a)
   }
   return out
@@ -99,6 +104,36 @@ function upsertScout(run, scout) {
   if (idx >= 0) run.scouts[idx] = { ...run.scouts[idx], ...scout, lastSeenAt: now() }
   else run.scouts.push(scout)
 }
+function reportBullets(args) {
+  if (args['report-bullet'] === undefined) return []
+  return Array.isArray(args['report-bullet']) ? args['report-bullet'].map(String) : [String(args['report-bullet'])]
+}
+function validateReportFlags(args) {
+  const errors = []
+  const headline = args['report-headline'] == null ? null : String(args['report-headline'])
+  const bullets = reportBullets(args)
+  if (headline != null && headline.length > 120) errors.push('--report-headline must be ≤ 120 characters')
+  if (bullets.length > 5) errors.push('--report-bullet may be supplied at most 5 times (max 5 bullets)')
+  if (bullets.some((bullet) => bullet.length > 120)) errors.push('--report-bullet values must be ≤ 120 characters')
+  if (args['report-path'] != null) {
+    const reportPath = String(args['report-path'])
+    const resolved = path.resolve(ROOT, reportPath)
+    if (path.isAbsolute(reportPath) || !resolved.startsWith(`${ROOT}${path.sep}`)) errors.push('--report-path must be a relative path within the project directory')
+  }
+  if (args['report-status'] != null && !['partial','final'].includes(args['report-status'])) errors.push('--report-status must be "partial" or "final"')
+  if (errors.length) throw new Error('Report flag errors:\n- ' + errors.join('\n- '))
+}
+function buildReportFields(args) {
+  if (args['report-headline'] === undefined && args['report-bullet'] === undefined && args['report-path'] === undefined && args['report-status'] === undefined) return null
+  validateReportFlags(args)
+  return {
+    ...(args['report-headline'] !== undefined ? { reportHeadline: String(args['report-headline']) } : {}),
+    ...(args['report-bullet'] !== undefined ? { reportBullets: reportBullets(args) } : {}),
+    ...(args['report-path'] !== undefined ? { reportPath: String(args['report-path']) } : {}),
+    reportStatus: args['report-status'] || 'partial',
+    reportUpdatedAt: now()
+  }
+}
 function usage() {
   console.log(`Usage: apiary-run <command> [options]\nCommands: start, worker-start, worker-update, worker-complete, worker-fail, event, complete, sweep-stale
 Legacy aliases: scout-start, scout-update, scout-complete, scout-fail\nUse --json for machine-readable output.`)
@@ -123,7 +158,8 @@ export function handle(argv) {
   if (cmd === 'scout-start') {
     const id = args.id || args.label || `worker-${run.scouts.length+1}`
     const t = now()
-    upsertScout(run, { id, label: args.label || id, role: args.role || 'worker', modelRole: args['model-role'] || 'default', model: args.model || null, resolvedModel: args['resolved-model'] || args.model || null, status: requireStatus(args.status || 'running'), sessionKey: args['session-key'] || null, startedAt: t, lastSeenAt: t, completedAt: null, progress: Number(args.progress ?? 0), summary: args.summary || '', awaiting: args.awaiting || null, artifactPaths: [] })
+    const reportFields = buildReportFields(args)
+    upsertScout(run, { id, label: args.label || id, role: args.role || 'worker', modelRole: args['model-role'] || 'default', model: args.model || null, resolvedModel: args['resolved-model'] || args.model || null, status: requireStatus(args.status || 'running'), sessionKey: args['session-key'] || null, startedAt: t, lastSeenAt: t, completedAt: null, progress: Number(args.progress ?? 0), summary: args.summary || '', awaiting: args.awaiting || null, artifactPaths: [], ...(reportFields || {}) })
     run.events.push(event('state', `Worker started: ${args.label || id}`, id))
     return { run: saveRun(run) }
   }
@@ -131,12 +167,14 @@ export function handle(argv) {
     const id = args.id; if (!id) throw new Error('--id is required')
     const scout = run.scouts.find(s => s.id === id); if (!scout) throw new Error(`Worker not found: ${id}`)
     const status = cmd === 'scout-complete' ? 'done' : cmd === 'scout-fail' ? 'failed' : requireStatus(args.status || scout.status)
+    const reportFields = buildReportFields(args)
     scout.status = status; scout.lastSeenAt = now(); scout.progress = Number(args.progress ?? (status === 'done' ? 100 : scout.progress ?? 0))
     if (args.summary) scout.summary = args.summary
     if (args.model !== undefined) scout.model = args.model || null
     if (args['resolved-model'] !== undefined) scout.resolvedModel = args['resolved-model'] || scout.model || null
     if (args.awaiting !== undefined) scout.awaiting = args.awaiting || null
     if (status === 'done' || status === 'failed' || status === 'canceled') scout.completedAt = now()
+    if (reportFields) Object.assign(scout, reportFields)
     run.events.push(event(status === 'failed' ? 'error' : 'state', args.message || `Worker ${status}: ${scout.label}`, id, status === 'failed' ? 'danger' : status === 'done' ? 'success' : 'info'))
     return { run: saveRun(run) }
   }
