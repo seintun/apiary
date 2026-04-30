@@ -8,6 +8,21 @@ Apiary helps a coordinator use multiple scouts to explore, challenge, synthesize
 
 
 
+
+## Visual overview
+
+```mermaid
+flowchart LR
+    A[Classify] --> B[Retrieve]
+    B --> C[Scout]
+    C --> D[Synthesize]
+    D --> E[Verify]
+    E --> F[Writeback]
+    A -. simple task .-> G[Direct answer]
+```
+
+See [DIAGRAMS.md](DIAGRAMS.md) for architecture, decision routing, scout lifecycle, quorum, and adapter diagrams.
+
 ## Why use Apiary?
 
 AI agents are good at producing answers quickly, but complex decisions often need more than one perspective. Apiary gives you a lightweight way to ask multiple bounded scouts to investigate different angles, then combine their findings into one verified decision.
@@ -239,6 +254,7 @@ The coordinator can be a human, an AI assistant, a coding agent, or a team lead.
 
 - [Quickstart](QUICKSTART.md)
 - [Architecture](ARCHITECTURE.md)
+- [Diagrams](DIAGRAMS.md)
 - [Technical Notes](TECHNICAL.md)
 - [Protocol](protocol/apiary-protocol.md)
 - [Decision Rules](protocol/decision-rules.md)
