@@ -11,6 +11,7 @@ const RUNS_DIR = path.join(ROOT, 'runs')
 const REGISTRY_PATH = path.join(RUNS_DIR, 'registry.json')
 
 function now() { return new Date().toISOString() }
+function minutesAgo(minutes) { return Date.now() - Number(minutes || 5) * 60 * 1000 }
 function slug(input) { return String(input || 'apiary-run').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,48) || 'apiary-run' }
 function parseArgs(argv) {
   const out = { _: [] }
@@ -99,7 +100,7 @@ function upsertScout(run, scout) {
   else run.scouts.push(scout)
 }
 function usage() {
-  console.log(`Usage: apiary-run <command> [options]\nCommands: start, worker-start, worker-update, worker-complete, worker-fail, event, complete
+  console.log(`Usage: apiary-run <command> [options]\nCommands: start, worker-start, worker-update, worker-complete, worker-fail, event, complete, sweep-stale
 Legacy aliases: scout-start, scout-update, scout-complete, scout-fail\nUse --json for machine-readable output.`)
 }
 export function handle(argv) {
@@ -143,6 +144,26 @@ export function handle(argv) {
     run.events.push(event(args.type || 'log', args.message || '', args['scout-id'] || null, args.severity || 'info'))
     return { run: saveRun(run) }
   }
+
+  if (cmd === 'sweep-stale') {
+    const olderThanMinutes = Number(args['older-than-minutes'] || args.minutes || 5)
+    const cutoff = minutesAgo(olderThanMinutes)
+    const staleable = new Set(['queued','running','retrying','waiting_tool'])
+    const changed = []
+    for (const scout of run.scouts || []) {
+      const seen = scout.lastSeenAt ? new Date(scout.lastSeenAt).getTime() : 0
+      if (staleable.has(scout.status) && (!Number.isFinite(seen) || seen < cutoff)) {
+        scout.status = 'stale'
+        scout.lastSeenAt = now()
+        scout.awaiting = scout.awaiting || `No worker heartbeat for ${olderThanMinutes} minutes.`
+        changed.push(scout)
+        run.events.push(event('warning', `Worker marked stale after no heartbeat for ${olderThanMinutes} minutes: ${scout.label || scout.id}`, scout.id, 'warning'))
+      }
+    }
+    const saved = changed.length ? saveRun(run) : run
+    return { run: saved, output: args.json ? JSON.stringify({ runId, stale: changed.map((s) => s.id) }) : (changed.length ? `Marked stale: ${changed.map((s) => s.id).join(', ')}` : 'No stale workers') }
+  }
+
   if (cmd === 'complete') {
     const unfinished = run.scouts.filter((s) => !['done','failed','canceled'].includes(s.status))
     if (unfinished.length && !args.force) throw new Error(`Cannot complete run with unfinished workers: ${unfinished.map((s) => s.id).join(', ')}. Use --force to override.`)

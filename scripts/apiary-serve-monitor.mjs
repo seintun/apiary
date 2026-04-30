@@ -2,6 +2,7 @@
 import http from 'node:http'
 import fs from 'node:fs'
 import path from 'node:path'
+import { handle as handleApiaryRun } from './apiary-run.mjs'
 const root = path.resolve(new URL('..', import.meta.url).pathname)
 const port = Number(process.argv[2] || process.env.PORT || 8765)
 const types = { '.html':'text/html; charset=utf-8', '.css':'text/css; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.json':'application/json; charset=utf-8' }
@@ -15,6 +16,12 @@ function allowed(urlPath) {
 }
 http.createServer((req,res)=>{
   const url = new URL(req.url, `http://localhost:${port}`)
+  if (url.pathname === '/runs/registry.json' || /^\/runs\/run-[A-Za-z0-9._-]+\.json$/.test(url.pathname)) {
+    const runId = url.pathname.match(/\/runs\/(run-[A-Za-z0-9._-]+)\.json$/)?.[1]
+    if (runId) {
+      try { handleApiaryRun(['sweep-stale', '--run', runId, '--older-than-minutes', process.env.APIARY_STALE_MINUTES || '5']) } catch {}
+    }
+  }
   const file = allowed(url.pathname)
   if(!file){ res.writeHead(404, {'content-type':'text/plain; charset=utf-8'}); return res.end('not found') }
   const full = path.resolve(root, file)

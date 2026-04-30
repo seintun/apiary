@@ -303,6 +303,15 @@ done          -> Finished
 - `stale`: faded/desaturated.
 - Respect `prefers-reduced-motion` and provide a Focus Mode toggle.
 
+### Zombie-worker prevention
+
+A worker should not remain visually `Gathering` forever.
+
+- Workers must refresh `lastSeenAt` through `worker-update`, `worker-complete`, or `worker-fail` when meaningful progress/state changes happen.
+- `apiary-run sweep-stale --run <run-id> --older-than-minutes 5` converts old `queued`, `running`, `retrying`, and `waiting_tool` workers to `stale` and writes a warning event.
+- Honey ComBoard invokes the sweep before serving run JSON, so stale workers are corrected at read time.
+- `apiary-run complete` refuses unfinished workers unless the coordinator explicitly uses `--force` and should record why.
+
 ### Privacy mode
 
 Default overview should avoid sensitive details:

@@ -56,6 +56,12 @@ Dashboard controls:
 - **Focus** toggles a calmer no-motion view and displays an obvious on/off state.
 - **Refresh** reloads the latest ledger and gives tap feedback.
 
+Zombie-worker prevention:
+
+- `node scripts/apiary-run.mjs sweep-stale --run <run-id> --older-than-minutes 5` marks old active workers as `stale` and records a warning event.
+- Honey ComBoard runs that sweep before serving run JSON so old `Gathering` workers do not stay active-looking forever.
+- `apiary-run complete` refuses unfinished workers unless explicitly forced.
+
 Security/privacy note: dashboard privacy mode is display/glance privacy only. Treat the monitor as a local/trusted-tailnet tool.
 
 See [protocol/worker-taxonomy.md](protocol/worker-taxonomy.md), [protocol/monitor-implementation-plan.md](protocol/monitor-implementation-plan.md) and [adapters/openclaw/monitor.md](adapters/openclaw/monitor.md).
