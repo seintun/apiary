@@ -23,6 +23,8 @@ flowchart LR
 
 See [DIAGRAMS.md](DIAGRAMS.md) for architecture, decision routing, scout lifecycle, quorum, and adapter diagrams.
 
+See [protocol/model-routing.md](protocol/model-routing.md) for provider-agnostic model role routing and zero-config defaults.
+
 ## Why use Apiary?
 
 AI agents are good at producing answers quickly, but complex decisions often need more than one perspective. Apiary gives you a lightweight way to ask multiple bounded scouts to investigate different angles, then combine their findings into one verified decision.

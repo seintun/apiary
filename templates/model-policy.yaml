@@ -1,0 +1,26 @@
+# Optional local Apiary model policy template.
+# Air-gap safe: leave preferences as auto/default to let a local host runtime route.
+# Public Apiary does not require this file. If absent, adapters should omit
+# explicit model names and let the host runtime choose defaults/fallbacks.
+apiary:
+  models:
+    cheapScout:
+      prefer: auto
+      required: false
+      fallbackToDefault: true
+    balancedScout:
+      prefer: auto
+      required: false
+      fallbackToDefault: true
+    strongJudge:
+      prefer: default
+      required: false
+      fallbackToDefault: true
+    reviewer:
+      prefer: default
+      required: false
+      fallbackToDefault: true
+    fallbackSafe:
+      prefer: default
+      required: false
+      fallbackToDefault: true

@@ -10,6 +10,11 @@ Map Apiary to OpenClaw/Dexter:
 
 Default:
 - 1-3 scouts maximum.
-- Cheap model for bounded scouts.
+- Use model roles, not hardcoded model names. Public/default OpenClaw Apiary should omit `model` and let OpenClaw route normally.
+- Optional local preferences may map roles like `cheapScout`, `strongJudge`, and `reviewer` to concrete models. Treat these as soft preferences unless the user explicitly requires one.
+- If a soft preferred model fails, retry the same scout once with no explicit model so OpenClaw can use its default/fallback chain.
+- For air-gapped/local-only setups, leave roles as `auto`/`default` and configure OpenClaw's default model/provider to the local runtime; Apiary should not require cloud model names.
 - Devil's advocate for adoption/security/automation decisions.
 - Dexter synthesizes; do not paste raw scout output.
+
+See also: [`../../protocol/model-routing.md`](../../protocol/model-routing.md).
