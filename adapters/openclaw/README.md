@@ -17,4 +17,12 @@ Default:
 - Devil's advocate for adoption/security/automation decisions.
 - Dexter synthesizes; do not paste raw worker output.
 
+Run ledger practice:
+- Start a run with `scripts/apiary-run.mjs start` before spawning non-trivial workers.
+- Record every spawned worker immediately with `worker-start`, including a stable id and `sessionKey`.
+- When an OpenClaw subagent completion arrives, reconcile the Apiary worker with `apiary-run reconcile --run <run-id> --id <worker-id> --outcome success|failed|timeout --summary "..."`. Use direct `worker-complete` / `worker-fail` only when the coordinator is making the state transition itself.
+- Use intentional wait states instead of accidental staleness: `waiting_user`, `waiting_model`, `needs_review`, and `needs_tests`.
+- Run `sweep-stale` only for workers that should still be heartbeating.
+- For implementation runs, use `../../templates/apiary-contract.json` before spawning workers and `../../checklists/merge-readiness-checklist.md` before commit/closeout.
+
 See also: [`../../protocol/model-routing.md`](../../protocol/model-routing.md).

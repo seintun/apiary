@@ -54,6 +54,8 @@ Each worker gets:
 - output schema,
 - stop conditions.
 
+For parallel implementation work, define a small contract before spawning workers. The contract should capture canonical field shapes, ownership boundaries, acceptance gates, fallback-model merge rules, and review requirements. Workers must conform to the contract or stop and report the mismatch.
+
 ## 4. Synthesize
 
 The coordinator compares worker outputs and produces one decision.
@@ -80,6 +82,8 @@ Use the smallest meaningful gate:
 - screenshot,
 - human approval,
 - explicit blocker.
+
+For implementation runs, "done" means the gate passed, not merely that a worker reported completion. If workers complete outside the ledger, reconcile their lifecycle state before closing the run. Intentional non-terminal states such as `needs_review`, `needs_tests`, and `waiting_model` are preferable to letting work drift into stale/unknown status.
 
 ## 6. Writeback
 
