@@ -1,7 +1,7 @@
 {
   "schemaVersion": "apiary.run.v1",
   "runId": "run-sample-hive",
-  "title": "Hive Board sample",
+  "title": "Honey ComBoard sample",
   "status": "running",
   "privacyMode": true,
   "createdAt": "2026-04-30T01:50:00.000Z",
@@ -10,7 +10,7 @@
   "coordinator": { "adapter": "openclaw", "label": "Dexter" },
   "summary": { "total": 4, "queued": 0, "running": 1, "waiting": 1, "blocked": 0, "done": 2, "failed": 0, "canceled": 0, "stale": 0 },
   "scouts": [
-    { "id": "ux", "label": "UX scout", "role": "uxScout", "modelRole": "cheapScout", "model": "demo-mini", "status": "done", "sessionKey": null, "startedAt": "2026-04-30T01:50:20.000Z", "lastSeenAt": "2026-04-30T01:52:00.000Z", "completedAt": "2026-04-30T01:52:00.000Z", "progress": 100, "summary": "Designed the Hive Board metaphor.", "awaiting": null, "artifactPaths": [] },
+    { "id": "ux", "label": "UX scout", "role": "uxScout", "modelRole": "cheapScout", "model": "demo-mini", "status": "done", "sessionKey": null, "startedAt": "2026-04-30T01:50:20.000Z", "lastSeenAt": "2026-04-30T01:52:00.000Z", "completedAt": "2026-04-30T01:52:00.000Z", "progress": 100, "summary": "Designed the Honey ComBoard metaphor.", "awaiting": null, "artifactPaths": [] },
     { "id": "tech", "label": "Tech scout", "role": "techScout", "modelRole": "cheapScout", "model": "demo-mini", "status": "running", "sessionKey": null, "startedAt": "2026-04-30T01:51:00.000Z", "lastSeenAt": "2026-04-30T01:55:00.000Z", "completedAt": null, "progress": 55, "summary": "Building a no-dependency dashboard plan.", "awaiting": null, "artifactPaths": [] },
     { "id": "review", "label": "Risk reviewer", "role": "reviewer", "modelRole": "reviewer", "model": null, "status": "waiting_user", "sessionKey": null, "startedAt": "2026-04-30T01:51:10.000Z", "lastSeenAt": "2026-04-30T01:54:00.000Z", "completedAt": null, "progress": 70, "summary": "Needs a privacy mode decision.", "awaiting": "Choose whether details are hidden by default.", "artifactPaths": [] },
     { "id": "docs", "label": "Docs scout", "role": "docsScout", "modelRole": "balancedScout", "model": "demo-mini", "status": "done", "sessionKey": null, "startedAt": "2026-04-30T01:51:30.000Z", "lastSeenAt": "2026-04-30T01:53:10.000Z", "completedAt": "2026-04-30T01:53:10.000Z", "progress": 100, "summary": "Drafted usage docs.", "awaiting": null, "artifactPaths": [] }

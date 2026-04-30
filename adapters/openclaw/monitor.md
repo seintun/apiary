@@ -56,3 +56,9 @@ open http://localhost:8765
 ```
 
 Honey ComBoard is read-only, privacy-oriented, mobile-friendly, and uses the same ledger JSON as the terminal monitor. The header controls are intentionally stateful: **Privacy** is display/glance privacy only, **Focus** disables motion and shows an on-state, and **Refresh** reloads the ledger with immediate tap feedback.
+
+Zombie-worker prevention is built into the monitor path: before serving a run JSON file, Honey ComBoard invokes `apiary-run sweep-stale` with `APIARY_STALE_MINUTES` or a 5-minute default. Coordinators can also run it manually:
+
+```bash
+node scripts/apiary-run.mjs sweep-stale --run <run-id> --older-than-minutes 5
+```

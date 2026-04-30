@@ -28,7 +28,7 @@ Apiary monitor readers
   └─ static dashboard reads ledger JSON
 ```
 
-OpenClaw should not know about Hive Board UI. The dashboard should not parse raw OpenClaw internals. The stable contract is the Apiary run ledger schema.
+OpenClaw should not know about Honey ComBoard UI. The dashboard should not parse raw OpenClaw internals. The stable contract is the Apiary run ledger schema.
 
 ## File layout
 
@@ -124,7 +124,7 @@ projects/apiary-protocol/
       "lastSeenAt": "2026-04-30T01:34:00.000Z",
       "completedAt": "2026-04-30T01:34:00.000Z",
       "progress": 100,
-      "summary": "Proposed Hive Board metaphor.",
+      "summary": "Proposed Honey ComBoard metaphor.",
       "awaiting": null,
       "artifactPaths": []
     }
@@ -196,7 +196,7 @@ node scripts/apiary-run.mjs worker-update \
 node scripts/apiary-run.mjs worker-complete \
   --run <run-id> \
   --id ux-worker \
-  --summary "Proposed Hive Board metaphor."
+  --summary "Proposed Honey ComBoard metaphor."
 
 node scripts/apiary-run.mjs worker-fail \
   --run <run-id> \
@@ -260,7 +260,7 @@ Serves `dashboard/` and `runs/`. Optional; dashboard can also be exposed through
 
 ## Visual dashboard MVP
 
-### UI concept: Hive Board
+### UI concept: Honey ComBoard
 
 - Top: Hive Health summary
   - running / waiting / blocked / done / failed
@@ -443,7 +443,7 @@ Suggested first command flow:
 ```bash
 RUN_ID=$(node scripts/apiary-run.mjs start --title "Monitor MVP test" --adapter openclaw --json | jq -r .runId)
 node scripts/apiary-run.mjs worker-start --run "$RUN_ID" --id ux --label "UX worker" --role uxWorker --model-role cheapWorker
-node scripts/apiary-run.mjs worker-complete --run "$RUN_ID" --id ux --summary "Hive Board direction validated."
+node scripts/apiary-run.mjs worker-complete --run "$RUN_ID" --id ux --summary "Honey ComBoard direction validated."
 node scripts/apiary-monitor.mjs --run "$RUN_ID"
 ```
 
